@@ -1,17 +1,11 @@
 "use client";
 
 import { useState, useCallback } from "react";
-import type { ScanResponse, AsyncState } from "@/types";
-
-// TODO: Replace mock with real API call when backend is ready
-// import { analyzeImage } from "@/lib/api/scan";
-async function mockAnalyze(): Promise<ScanResponse> {
-  await new Promise((resolve) => setTimeout(resolve, 1500));
-  return { result: "lupus", confidence: 87 };
-}
+import { analyzeImage } from "@/lib/api/scan";
+import type { FirstChatResponse, AsyncState } from "@/types";
 
 interface UseScanReturn {
-  state: AsyncState<ScanResponse>;
+  state: AsyncState<FirstChatResponse>;
   selectedFile: File | null;
   previewUrl: string | null;
   selectFile: (file: File) => void;
@@ -21,7 +15,7 @@ interface UseScanReturn {
 }
 
 export function useScan(): UseScanReturn {
-  const [state, setState] = useState<AsyncState<ScanResponse>>({
+  const [state, setState] = useState<AsyncState<FirstChatResponse>>({
     status: "idle",
   });
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -47,7 +41,7 @@ export function useScan(): UseScanReturn {
     setState({ status: "loading" });
 
     try {
-      const data = await mockAnalyze();
+      const data = await analyzeImage(selectedFile);
       setState({ status: "success", data });
     } catch (error) {
       const message =

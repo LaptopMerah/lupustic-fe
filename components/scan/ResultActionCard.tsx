@@ -6,28 +6,30 @@ import { Card, CardContent } from "@/components/ui/card";
 import { MessageSquare, RefreshCw } from "lucide-react";
 
 interface ResultActionCardProps {
-  result: "lupus" | "not_lupus";
+  classification: string;
   confidence: number;
+  sessionId: string;
   onRetry: () => void;
 }
 
 export function ResultActionCard({
-  result,
+  classification,
   confidence,
+  sessionId,
   onRetry,
 }: ResultActionCardProps) {
   const router = useRouter();
+  const isLupus = classification === "Lupus";
 
   const handleProceedToChat = () => {
-    const uuid = crypto.randomUUID();
     sessionStorage.setItem(
       "lupustic_scan",
-      JSON.stringify({ result, confidence })
+      JSON.stringify({ session_id: sessionId, classification, confidence })
     );
-    router.push(`/chat/${uuid}`);
+    router.push(`/chat/${sessionId}`);
   };
 
-  if (result === "lupus") {
+  if (isLupus) {
     return (
       <Card className="border border-border bg-accent/5">
         <CardContent className="flex flex-col gap-3 p-4">

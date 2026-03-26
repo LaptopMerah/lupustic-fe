@@ -8,7 +8,6 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { RefreshCw, ScanLine } from "lucide-react";
-import { Footer } from "@/components/layout/Footer";
 
 export default function ScanPage() {
   const router = useRouter();
@@ -16,17 +15,24 @@ export default function ScanPage() {
     useScan();
 
   // Auto-navigate to chat on successful scan
+  // The /first-chat endpoint returns a session_id — use that instead of crypto.randomUUID()
   useEffect(() => {
     if (state.status === "success") {
-      const uuid = crypto.randomUUID();
+      const { session_id, classification, confidence, answer, sources } =
+        state.data;
+
       sessionStorage.setItem(
         "lupustic_scan",
         JSON.stringify({
-          result: state.data.result,
-          confidence: state.data.confidence,
+          session_id,
+          classification,
+          confidence,
+          answer,
+          sources,
         })
       );
-      router.push(`/chat/${uuid}`);
+
+      router.push(`/chat/${session_id}`);
     }
   }, [state, router]);
 
@@ -97,4 +103,3 @@ export default function ScanPage() {
     </div>
   );
 }
-

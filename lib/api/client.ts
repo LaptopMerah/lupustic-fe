@@ -1,4 +1,4 @@
-const BASE_URL = "http://localhost:8000";
+const BASE_URL = "https://lupus-ai-dev.aryagading.com";
 
 export async function apiFetch<T>(
   path: string,

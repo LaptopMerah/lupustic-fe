@@ -1,19 +1,20 @@
-import type { ScanResponse } from "@/types";
+import type { FirstChatResponse } from "@/types";
 import { ConfidenceBadge } from "./ConfidenceBadge";
 import { ResultActionCard } from "./ResultActionCard";
 import { Progress } from "@/components/ui/progress";
 
 interface ScanResultProps {
-  data: ScanResponse;
+  data: FirstChatResponse;
   previewUrl: string;
   onRetry: () => void;
 }
 
 export function ScanResult({ data, previewUrl, onRetry }: ScanResultProps) {
-  const resultText =
-    data.result === "lupus"
-      ? "Potential Lupus Indicators Detected"
-      : "No Lupus Indicators Detected";
+  const isLupus = data.classification === "Lupus";
+  const confidencePercent = Math.round(data.confidence * 100);
+  const resultText = isLupus
+    ? "Potential Lupus Indicators Detected"
+    : "No Lupus Indicators Detected";
 
   return (
     <div className="grid gap-8 md:grid-cols-2">
@@ -38,15 +39,16 @@ export function ScanResult({ data, previewUrl, onRetry }: ScanResultProps) {
           </p>
         </div>
 
-        <ConfidenceBadge confidence={data.confidence} />
+        <ConfidenceBadge confidence={confidencePercent} />
 
-        <Progress value={data.confidence} className="h-2" />
+        <Progress value={confidencePercent} className="h-2" />
 
         <p className="text-base font-medium text-foreground">{resultText}</p>
 
         <ResultActionCard
-          result={data.result}
+          classification={data.classification}
           confidence={data.confidence}
+          sessionId={data.session_id}
           onRetry={onRetry}
         />
       </div>

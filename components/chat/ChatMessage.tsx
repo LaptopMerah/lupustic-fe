@@ -1,5 +1,8 @@
 import { cn } from "@/lib/utils";
 import type { ChatMessage as ChatMessageType } from "@/types";
+import { ChatResultHeader } from "./ChatResultHeader";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 
 interface ChatMessageProps {
   message: ChatMessageType;
@@ -24,26 +27,42 @@ export function ChatMessage({ message }: ChatMessageProps) {
     >
       <div
         className={cn(
-          "max-w-[80%] rounded-lg px-4 py-2.5 text-sm leading-relaxed md:max-w-[70%]",
+          "max-w-[80%] rounded-lg text-sm leading-relaxed md:max-w-[70%]",
           isUser
-            ? "bg-[#6366F1] text-white"
-            : "border border-border bg-white text-foreground"
+            ? "bg-[#6366F1] text-white px-4 py-2.5"
+            : "border border-border bg-white text-foreground overflow-hidden"
         )}
       >
-        <p className="whitespace-pre-wrap">{message.content}</p>
-        {message.timestamp && (
-          <span
-            className={cn(
-              "mt-1 block text-[10px]",
-              isUser ? "text-white/60" : "text-muted-foreground"
-            )}
-          >
-            {new Date(message.timestamp).toLocaleTimeString([], {
-              hour: "2-digit",
-              minute: "2-digit",
-            })}
-          </span>
+        {!isUser && message.scanData && (
+          <ChatResultHeader
+            classification={message.scanData.classification}
+            confidence={message.scanData.confidence}
+          />
         )}
+        <div className={cn(!isUser && "px-4 py-2.5")}>
+          {isUser ? (
+            <p className="whitespace-pre-wrap">{message.content}</p>
+          ) : (
+            <div className={cn("prose prose-sm max-w-none", "chat-markdown")}>
+              <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                {message.content}
+              </ReactMarkdown>
+            </div>
+          )}
+          {message.timestamp && (
+            <span
+              className={cn(
+                "mt-1 block text-[10px]",
+                isUser ? "text-white/60" : "text-muted-foreground"
+              )}
+            >
+              {new Date(message.timestamp).toLocaleTimeString([], {
+                hour: "2-digit",
+                minute: "2-digit",
+              })}
+            </span>
+          )}
+        </div>
       </div>
     </div>
   );

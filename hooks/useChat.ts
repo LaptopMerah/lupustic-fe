@@ -1,33 +1,15 @@
 "use client";
 
 import { useState, useCallback, useEffect, useRef } from "react";
+import { sendMessage } from "@/lib/api/chat";
 import type { ChatMessage, AsyncState } from "@/types";
 
-// TODO: Replace mock with real API call when backend is ready
-// import { sendMessage } from "@/lib/api/chat";
-async function mockReply(
-  message: string,
-  resultLabel?: string,
-  confidence?: number
-): Promise<string> {
-  await new Promise((resolve) => setTimeout(resolve, 1200));
-
-  if (message.includes("scan result") && resultLabel && confidence !== undefined) {
-    const analysisHeader = `📋 **Analysis Result**\nBased on our AI model's analysis:\n- **Result:** ${resultLabel}\n- **Confidence:** ${Math.round(confidence)}%\n`;
-
-    return `${analysisHeader}\nThank you for sharing your scan results. Based on the AI analysis showing potential lupus indicators, I'd recommend we discuss a few important points:\n\n1. **Don't panic** — This is a screening tool, not a diagnosis. Only a qualified dermatologist or rheumatologist can confirm lupus.\n\n2. **Common symptoms to watch for:**\n   - Butterfly-shaped rash across the cheeks and nose\n   - Joint pain or swelling\n   - Fatigue and fever\n   - Sensitivity to sunlight\n\n3. **Recommended next steps:**\n   - Schedule an appointment with a dermatologist\n   - Request an ANA (antinuclear antibody) blood test\n   - Keep track of any symptoms you notice\n\nWould you like to tell me about any other symptoms you've been experiencing?`;
-  }
-
-  if (message.includes("scan result")) {
-    return "Thank you for sharing your scan results. Based on the AI analysis showing potential lupus indicators, I'd recommend we discuss a few important points:\n\n1. **Don't panic** — This is a screening tool, not a diagnosis. Only a qualified dermatologist or rheumatologist can confirm lupus.\n\n2. **Common symptoms to watch for:**\n   - Butterfly-shaped rash across the cheeks and nose\n   - Joint pain or swelling\n   - Fatigue and fever\n   - Sensitivity to sunlight\n\n3. **Recommended next steps:**\n   - Schedule an appointment with a dermatologist\n   - Request an ANA (antinuclear antibody) blood test\n   - Keep track of any symptoms you notice\n\nWould you like to tell me about any other symptoms you've been experiencing?";
-  }
-
-  return "I understand your concern. Could you provide more details about your symptoms? For instance:\n\n- How long have you noticed the skin changes?\n- Do you experience any joint pain or fatigue?\n- Are the symptoms worse after sun exposure?\n\nThis information can help guide our discussion, though I always recommend consulting a physician for professional medical advice.";
-}
-
-interface ScanData {
-  result: "lupus" | "not_lupus";
+interface StoredScanData {
+  session_id: string;
+  classification: string;
   confidence: number;
+  answer: string;
+  sources: string[];
 }
 
 interface UseChatReturn {
@@ -35,6 +17,7 @@ interface UseChatReturn {
   sendState: AsyncState<null>;
   isTyping: boolean;
   send: (content: string) => Promise<void>;
+  scanData: { classification: string; confidence: number } | null;
 }
 
 export function useChat(sessionId: string): UseChatReturn {
@@ -43,9 +26,13 @@ export function useChat(sessionId: string): UseChatReturn {
     status: "idle",
   });
   const [isTyping, setIsTyping] = useState(false);
+  const [scanData, setScanData] = useState<{
+    classification: string;
+    confidence: number;
+  } | null>(null);
   const hasInitialized = useRef(false);
 
-  // On mount: read scan result from sessionStorage and auto-send first message
+  // On mount: read scan data from sessionStorage and display initial AI response
   useEffect(() => {
     if (hasInitialized.current) return;
     hasInitialized.current = true;
@@ -54,49 +41,26 @@ export function useChat(sessionId: string): UseChatReturn {
     if (!stored) return;
 
     try {
-      const scanData: ScanData = JSON.parse(stored);
-      const resultLabel =
-        scanData.result === "lupus"
-          ? "Potential Lupus Indicators Detected"
-          : "No Lupus Indicators Detected";
+      const parsedScanData: StoredScanData = JSON.parse(stored);
+      setScanData({
+        classification: parsedScanData.classification,
+        confidence: parsedScanData.confidence,
+      });
 
-      // Auto-send first user message (no system message — the AI delivers the analysis result)
-      const firstMessage = `I just received a scan result: ${scanData.result} with ${Math.round(scanData.confidence)}% confidence. What should I know and what are the next steps?`;
-
-      const autoSend = async () => {
-        const userMessage: ChatMessage = {
-          role: "user",
-          content: firstMessage,
-          timestamp: new Date().toISOString(),
-        };
-
-        setMessages([userMessage]);
-        setIsTyping(true);
-
-        try {
-          const reply = await mockReply(firstMessage, resultLabel, scanData.confidence);
-
-          const assistantMessage: ChatMessage = {
-            role: "assistant",
-            content: reply,
-            timestamp: new Date().toISOString(),
-          };
-
-          setMessages((prev) => [...prev, assistantMessage]);
-        } catch {
-          const errorMessage: ChatMessage = {
-            role: "assistant",
-            content:
-              "I'm sorry, I'm having trouble connecting right now. Please try sending your message again.",
-            timestamp: new Date().toISOString(),
-          };
-          setMessages((prev) => [...prev, errorMessage]);
-        } finally {
-          setIsTyping(false);
-        }
+      // The /first-chat endpoint already returned the AI's classification report,
+      // so we display it directly as the first assistant message.
+      const assistantMessage: ChatMessage = {
+        role: "assistant",
+        content: parsedScanData.answer,
+        sources: parsedScanData.sources,
+        timestamp: new Date().toISOString(),
+        scanData: {
+          classification: parsedScanData.classification,
+          confidence: parsedScanData.confidence,
+        },
       };
 
-      autoSend();
+      setMessages([assistantMessage]);
     } catch {
       // Invalid sessionStorage data — silently ignore
     }
@@ -117,11 +81,15 @@ export function useChat(sessionId: string): UseChatReturn {
       setIsTyping(true);
 
       try {
-        const reply = await mockReply(content.trim());
+        const response = await sendMessage({
+          session_id: sessionId,
+          message: content.trim(),
+        });
 
         const assistantMessage: ChatMessage = {
           role: "assistant",
-          content: reply,
+          content: response.answer,
+          sources: response.sources,
           timestamp: new Date().toISOString(),
         };
 
@@ -145,7 +113,7 @@ export function useChat(sessionId: string): UseChatReturn {
         setIsTyping(false);
       }
     },
-    [sessionId, messages]
+    [sessionId]
   );
 
   return {
@@ -153,5 +121,6 @@ export function useChat(sessionId: string): UseChatReturn {
     sendState,
     isTyping,
     send,
+    scanData,
   };
 }
