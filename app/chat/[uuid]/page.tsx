@@ -15,7 +15,7 @@ export default function ChatPage({ params }: ChatPageProps) {
 
   return (
     <div className="flex h-[calc(100vh-4rem-1px)] flex-col">
-      <ChatContainer messages={messages} isTyping={isTyping} />
+      <ChatContainer messages={messages} isTyping={isTyping} onSend={send} />
       <ChatInput onSend={send} disabled={isTyping} />
     </div>
   );

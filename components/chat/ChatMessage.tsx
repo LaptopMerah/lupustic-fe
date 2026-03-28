@@ -3,12 +3,14 @@ import type { ChatMessage as ChatMessageType } from "@/types";
 import { ChatResultHeader } from "./ChatResultHeader";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
+import { InteractiveSymptoms } from "./InteractiveSymptoms";
 
 interface ChatMessageProps {
   message: ChatMessageType;
+  onSend?: (content: string) => Promise<void>;
 }
 
-export function ChatMessage({ message }: ChatMessageProps) {
+export function ChatMessage({ message, onSend }: ChatMessageProps) {
   if (message.role === "system") {
     return (
       <div className="flex justify-center px-4 py-2">
@@ -47,6 +49,11 @@ export function ChatMessage({ message }: ChatMessageProps) {
               <ReactMarkdown remarkPlugins={[remarkGfm]}>
                 {message.content}
               </ReactMarkdown>
+            </div>
+          )}
+          {message.interactive === "symptoms" && !isUser && (
+            <div className="mt-2">
+              <InteractiveSymptoms onSend={onSend} />
             </div>
           )}
           {message.timestamp && (

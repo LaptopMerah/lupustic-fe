@@ -9,9 +9,10 @@ import type { ChatMessage as ChatMessageType } from "@/types";
 interface ChatContainerProps {
   messages: ChatMessageType[];
   isTyping: boolean;
+  onSend?: (content: string) => Promise<void>;
 }
 
-export function ChatContainer({ messages, isTyping }: ChatContainerProps) {
+export function ChatContainer({ messages, isTyping, onSend }: ChatContainerProps) {
   const scrollRef = useRef<HTMLDivElement>(null);
 
   // Auto-scroll to bottom on new messages
@@ -32,7 +33,11 @@ export function ChatContainer({ messages, isTyping }: ChatContainerProps) {
           </div>
         )}
         {messages.map((message, index) => (
-          <ChatMessage key={`${message.role}-${index}`} message={message} />
+          <ChatMessage 
+            key={`${message.role}-${index}`} 
+            message={message} 
+            onSend={onSend}
+          />
         ))}
         {isTyping && <TypingIndicator />}
       </div>

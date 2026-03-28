@@ -60,7 +60,14 @@ export function useChat(sessionId: string): UseChatReturn {
         },
       };
 
-      setMessages([assistantMessage]);
+      const interactiveMessage: ChatMessage = {
+        role: "assistant",
+        content: "Please select any of the following symptoms you have experienced:",
+        interactive: "symptoms",
+        timestamp: new Date().toISOString(),
+      };
+
+      setMessages([assistantMessage, interactiveMessage]);
     } catch {
       // Invalid sessionStorage data — silently ignore
     }

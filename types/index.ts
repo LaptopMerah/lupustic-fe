@@ -26,6 +26,7 @@ export interface ChatMessage {
   sources?: string[];
   timestamp?: string; // ISO string, optional
   scanData?: { classification: string; confidence: number };
+  interactive?: "symptoms";
 }
 
 export interface ChatRequest {
