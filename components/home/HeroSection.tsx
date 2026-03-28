@@ -12,7 +12,7 @@ export function HeroSection() {
       <div className="mx-auto grid max-w-6xl items-center gap-12 px-4 md:grid-cols-2 md:px-6">
         {/* Copy */}
         <div className="flex flex-col gap-6">
-          <h1 className="text-4xl font-bold leading-tight tracking-tight text-foreground md:text-5xl">
+          <h1 className="text-4xl font-bold leading-tight tracking-tight md:text-5xl text-muted-foreground">
             Early Lupus Detection,{" "}
             <span className="text-primary">Powered by AI</span>
           </h1>

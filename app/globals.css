@@ -55,17 +55,17 @@
   --card-foreground: #0F172A;
   --popover: #FFFFFF;
   --popover-foreground: #0F172A;
-  --primary: #6366F1;
+  --primary: #9440dd;
   --primary-foreground: #FFFFFF;
-  --secondary: #F8FAFC;
-  --secondary-foreground: #0F172A;
-  --muted: #F1F5F9;
-  --muted-foreground: #64748B;
-  --accent: #F43F5E;
+  --secondary: #fbf6ff;
+  --secondary-foreground: #6b1fad;
+  --muted: #b174e7;
+  --muted-foreground: #6b1fad;
+  --accent: #6b1fad;
   --accent-foreground: #FFFFFF;
   --destructive: #EF4444;
-  --border: #E2E8F0;
-  --input: #E2E8F0;
+  --border: #e2a9f1;
+  --input: #e2a9f1;
   --ring: #6366F1;
   --chart-1: #6366F1;
   --chart-2: #F43F5E;
@@ -87,9 +87,11 @@
   * {
     @apply border-border outline-ring/50;
   }
+
   body {
     @apply bg-background text-foreground;
   }
+
   html {
     @apply font-sans;
   }
@@ -99,15 +101,19 @@
 .chat-markdown p {
   margin-bottom: 0.5rem;
 }
+
 .chat-markdown p:last-child {
   margin-bottom: 0;
 }
+
 .chat-markdown strong {
   font-weight: 600;
 }
+
 .chat-markdown em {
   font-style: italic;
 }
+
 .chat-markdown h1,
 .chat-markdown h2,
 .chat-markdown h3 {
@@ -115,34 +121,71 @@
   margin-top: 0.75rem;
   margin-bottom: 0.25rem;
 }
-.chat-markdown h1 { font-size: 1.1em; }
-.chat-markdown h2 { font-size: 1.05em; }
-.chat-markdown h3 { font-size: 1em; }
+
+.chat-markdown h1 {
+  font-size: 1.1em;
+}
+
+.chat-markdown h2 {
+  font-size: 1.05em;
+}
+
+.chat-markdown h3 {
+  font-size: 1em;
+}
+
 .chat-markdown ul,
 .chat-markdown ol {
   margin-left: 1.25rem;
   margin-bottom: 0.5rem;
 }
-.chat-markdown ul { list-style-type: disc; }
-.chat-markdown ol { list-style-type: decimal; }
+
+.chat-markdown ul {
+  list-style-type: disc;
+}
+
+.chat-markdown ol {
+  list-style-type: decimal;
+}
+
 .chat-markdown li {
   margin-bottom: 0.2rem;
 }
-.chat-markdown li > ul,
-.chat-markdown li > ol {
+
+.chat-markdown li>ul,
+.chat-markdown li>ol {
   margin-top: 0.2rem;
   margin-bottom: 0;
   margin-left: 1rem;
 }
+
 /* Nested unordered: disc → circle → square */
-.chat-markdown ul ul { list-style-type: circle; }
-.chat-markdown ul ul ul { list-style-type: square; }
+.chat-markdown ul ul {
+  list-style-type: circle;
+}
+
+.chat-markdown ul ul ul {
+  list-style-type: square;
+}
+
 /* Nested ordered: decimal → lower-alpha → lower-roman */
-.chat-markdown ol ol { list-style-type: lower-alpha; }
-.chat-markdown ol ol ol { list-style-type: lower-roman; }
+.chat-markdown ol ol {
+  list-style-type: lower-alpha;
+}
+
+.chat-markdown ol ol ol {
+  list-style-type: lower-roman;
+}
+
 /* Mixed nesting */
-.chat-markdown ol ul { list-style-type: disc; }
-.chat-markdown ul ol { list-style-type: lower-alpha; }
+.chat-markdown ol ul {
+  list-style-type: disc;
+}
+
+.chat-markdown ul ol {
+  list-style-type: lower-alpha;
+}
+
 .chat-markdown code {
   font-family: var(--font-jetbrains-mono), monospace;
   font-size: 0.85em;
@@ -150,6 +193,7 @@
   padding: 0.1em 0.35em;
   border-radius: 0.25rem;
 }
+
 .chat-markdown pre {
   background-color: rgba(0, 0, 0, 0.06);
   border-radius: 0.375rem;
@@ -157,14 +201,17 @@
   overflow-x: auto;
   margin-bottom: 0.5rem;
 }
+
 .chat-markdown pre code {
   background: none;
   padding: 0;
 }
+
 .chat-markdown a {
   color: #6366F1;
   text-decoration: underline;
 }
+
 .chat-markdown blockquote {
   border-left: 3px solid #E2E8F0;
   padding-left: 0.75rem;
@@ -172,21 +219,25 @@
   margin-bottom: 0.5rem;
   color: #64748B;
 }
+
 .chat-markdown hr {
   border-color: #E2E8F0;
   margin: 0.5rem 0;
 }
+
 .chat-markdown table {
   border-collapse: collapse;
   width: 100%;
   margin-bottom: 0.5rem;
 }
+
 .chat-markdown th,
 .chat-markdown td {
   border: 1px solid #E2E8F0;
   padding: 0.35rem 0.5rem;
   text-align: left;
 }
+
 .chat-markdown th {
   font-weight: 600;
   background-color: rgba(0, 0, 0, 0.03);

@@ -1,12 +1,14 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { Menu } from "lucide-react";
 import { useState, useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger, SheetTitle } from "@/components/ui/sheet";
 import { cn } from "@/lib/utils";
+import LogoImg from "@/app/Lupustic.png";
 
 
 
@@ -30,9 +32,7 @@ export function Navbar() {
       <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4 md:px-6">
         {/* Logo */}
         <Link href="/" className="flex items-center gap-2">
-          <span className="text-xl font-bold tracking-tight text-primary">
-            lupustic
-          </span>
+          <Image src={LogoImg} alt="Lupustic Logo" className="h-12 w-auto scale-150" priority />
         </Link>
 
         {/* Session ID (chat pages only) */}
@@ -55,8 +55,8 @@ export function Navbar() {
             </Button>
           </SheetTrigger>
           <SheetContent side="right" className="w-64">
-            <SheetTitle className="text-lg font-bold text-primary">
-              lupustic
+            <SheetTitle className="flex items-center">
+              <Image src={LogoImg} alt="Lupustic Logo" className="h-8 w-auto" />
             </SheetTitle>
             {sessionId && (
               <div className="mt-6 border-t border-border pt-4">

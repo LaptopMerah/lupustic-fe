@@ -109,12 +109,12 @@ Set these in `app/globals.css` and `tailwind.config.ts`:
 
 ```css
 :root {
-  --primary:    #6366F1;   /* Indigo — buttons, active states, user bubbles */
-  --secondary:  #F8FAFC;   /* Off-white — page background, card backgrounds */
-  --accent:     #F43F5E;   /* Rose — HIGH RISK badge, critical alerts, CTA accents */
-  --foreground: #0F172A;   /* Near-black — all body text */
-  --muted:      #64748B;   /* Slate — captions, timestamps, secondary labels */
-  --border:     #E2E8F0;   /* Light gray — card borders, dividers, input borders */
+  --primary:    #9440dd;   /* Main interactive — buttons, active states */
+  --secondary:  #fbf6ff;   /* Background — page, cards */
+  --accent:     #6b1fad;   /* Strong emphasis — alerts, CTA */
+  --foreground: #6b1fad;   /* Text — deep purple for readability */
+  --muted:      #b174e7;   /* Secondary text — captions, labels */
+  --border:     #e2a9f1;   /* Borders — subtle separators */
 }
 ```
 
