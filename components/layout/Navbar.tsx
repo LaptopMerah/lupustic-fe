@@ -3,17 +3,17 @@
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
-import { Menu } from "lucide-react";
+import { Menu, LogOut, User } from "lucide-react";
 import { useState, useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger, SheetTitle } from "@/components/ui/sheet";
 import LogoImg from "@/app/Lupustic.png";
-
-
+import { useAuth } from "@/hooks/useAuth";
 
 export function Navbar() {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
+  const { user, logout, isLoading } = useAuth();
 
   // Auto-detect session ID from /chat/[uuid] routes
   const sessionId = useMemo(() => {
@@ -41,6 +41,30 @@ export function Navbar() {
           </span>
         )}
 
+        {/* Desktop Auth */}
+        <div className="hidden md:flex items-center gap-4">
+          {!isLoading && (
+            user ? (
+              <div className="flex items-center gap-4">
+                <span className="text-sm font-medium text-muted-foreground flex items-center gap-2">
+                  <User className="h-4 w-4" /> {user.name}
+                </span>
+                <Button variant="ghost" size="sm" onClick={logout} className="gap-2 text-destructive hover:bg-destructive/10 hover:text-destructive">
+                  <LogOut className="h-4 w-4" /> Logout
+                </Button>
+              </div>
+            ) : (
+              <div className="flex items-center gap-2">
+                <Button variant="ghost" asChild>
+                  <Link href="/login">Login</Link>
+                </Button>
+                <Button asChild>
+                  <Link href="/register">Register</Link>
+                </Button>
+              </div>
+            )
+          )}
+        </div>
 
         {/* Mobile Hamburger */}
         <Sheet open={open} onOpenChange={setOpen}>
@@ -57,6 +81,31 @@ export function Navbar() {
             <SheetTitle className="flex items-center">
               <Image src={LogoImg} alt="Lupustic Logo" className="h-8 w-auto" />
             </SheetTitle>
+            
+            <div className="mt-8 flex flex-col gap-4">
+              {!isLoading && (
+                user ? (
+                  <>
+                    <div className="text-sm font-medium text-muted-foreground flex items-center gap-2 px-2">
+                      <User className="h-4 w-4" /> {user.name}
+                    </div>
+                    <Button variant="ghost" onClick={() => { logout(); setOpen(false); }} className="justify-start gap-2 text-destructive hover:bg-destructive/10 hover:text-destructive">
+                      <LogOut className="h-4 w-4" /> Logout
+                    </Button>
+                  </>
+                ) : (
+                  <>
+                    <Button variant="ghost" className="justify-start" asChild onClick={() => setOpen(false)}>
+                      <Link href="/login">Login</Link>
+                    </Button>
+                    <Button className="justify-start" asChild onClick={() => setOpen(false)}>
+                      <Link href="/register">Register</Link>
+                    </Button>
+                  </>
+                )
+              )}
+            </div>
+
             {sessionId && (
               <div className="mt-6 border-t border-border pt-4">
                 <span className="text-xs font-mono text-muted-foreground">

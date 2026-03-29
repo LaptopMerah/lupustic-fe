@@ -66,3 +66,38 @@ export type AsyncState<T> =
   | { status: "loading" }
   | { status: "success"; data: T }
   | { status: "error"; message: string };
+
+// — Auth —
+export interface UserRegister {
+  name: string;
+  email: string;
+  password?: string;
+  gender: "male" | "female";
+  dob?: string | null;
+  phone_number?: string | null;
+}
+
+export interface UserLogin {
+  email: string;
+  password?: string;
+}
+
+export interface Token {
+  access_token: string;
+  token_type: string;
+}
+
+export interface UserOut {
+  id: string;
+  name: string;
+  email: string;
+  gender?: "male" | "female" | null;
+  dob?: string | null;
+  phone_number?: string | null;
+  created_at: string;
+}
+
+export interface ResponseWrapper<T> {
+  status: boolean;
+  data: T;
+}

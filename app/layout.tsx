@@ -3,6 +3,7 @@ import { DM_Sans, JetBrains_Mono } from "next/font/google";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { TooltipProvider } from "@/components/ui/tooltip";
+import { AuthProvider } from "@/hooks/useAuth";
 import "./globals.css";
 
 const dmSans = DM_Sans({
@@ -34,11 +35,13 @@ export default function RootLayout({
       className={`${dmSans.variable} ${jetbrainsMono.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">
-        <TooltipProvider>
-          <Navbar />
-          <main className="flex-1">{children}</main>
-          <Footer />
-        </TooltipProvider>
+        <AuthProvider>
+          <TooltipProvider>
+            <Navbar />
+            <main className="flex-1">{children}</main>
+            <Footer />
+          </TooltipProvider>
+        </AuthProvider>
       </body>
     </html>
   );
