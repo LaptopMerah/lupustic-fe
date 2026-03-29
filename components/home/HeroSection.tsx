@@ -8,7 +8,7 @@ export function HeroSection() {
   const router = useRouter();
 
   return (
-    <section className="relative overflow-hidden py-20 md:py-28">
+    <section className="border-b border-border relative overflow-hidden py-20 md:py-28">
       <div className="mx-auto grid max-w-6xl items-center gap-12 px-4 md:grid-cols-2 md:px-6">
         {/* Copy */}
         <div className="flex flex-col gap-6">
@@ -20,7 +20,14 @@ export function HeroSection() {
             Upload a photo of your skin. Our computer vision model analyzes
             potential Lupus indicators in seconds.
           </p>
-          <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+          <div className="flex items-center gap-2 mt-1 text-sm font-medium text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/30 px-3 py-1.5 rounded-full w-fit border border-emerald-200 dark:border-emerald-800">
+            <span className="relative flex h-2 w-2">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+            </span>
+            97% Accuracy Rate
+          </div>
+          <div className="flex flex-col mt-2 gap-3 sm:flex-row sm:items-center">
             <Button
               size="lg"
               className="rounded-lg"
