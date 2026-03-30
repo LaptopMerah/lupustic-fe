@@ -1,40 +1,22 @@
 "use client";
 
-import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useScan } from "@/hooks/useScan";
 import { ImageUploader } from "@/components/scan/ImageUploader";
-import { Skeleton } from "@/components/ui/skeleton";
-import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
-import { RefreshCw, ScanLine } from "lucide-react";
+import { ScanLine, MessageSquare } from "lucide-react";
 
 export default function ScanPage() {
   const router = useRouter();
-  const { state, selectedFile, previewUrl, selectFile, clearFile, scan, reset } =
-    useScan();
+  const { selectedFile, previewUrl, selectFile, clearFile } = useScan();
 
-  // Auto-navigate to chat on successful scan
-  // The /first-chat endpoint returns a session_id — use that instead of crypto.randomUUID()
-  useEffect(() => {
-    if (state.status === "success") {
-      const { session_id, classification, confidence, answer, sources } =
-        state.data;
-
-      sessionStorage.setItem(
-        "lupustic_scan",
-        JSON.stringify({
-          session_id,
-          classification,
-          confidence,
-          answer,
-          sources,
-        })
-      );
-
-      router.push(`/chat/${session_id}`);
-    }
-  }, [state, router]);
+  const handleProceed = () => {
+    if (!selectedFile) return;
+    // Navigate to chat with a temporary UUID — will be replaced by real session_id
+    // after /first-chat returns
+    const tempUuid = crypto.randomUUID();
+    router.push(`/chat/${tempUuid}`);
+  };
 
   return (
     <div className="mx-auto max-w-4xl px-4 py-12 md:px-6 md:py-16">
@@ -53,53 +35,16 @@ export default function ScanPage() {
         </p>
       </div>
 
-      {/* Idle state */}
-      {state.status === "idle" && (
-        <ImageUploader
-          selectedFile={selectedFile}
-          previewUrl={previewUrl}
-          onSelect={selectFile}
-          onClear={clearFile}
-          onAnalyze={scan}
-          isLoading={false}
-        />
-      )}
+      {/* Upload area */}
+      <ImageUploader
+        selectedFile={selectedFile}
+        previewUrl={previewUrl}
+        onSelect={selectFile}
+        onClear={clearFile}
+        onAnalyze={handleProceed}
+        isLoading={false}
+      />
 
-      {/* Loading / Success (redirecting) state */}
-      {(state.status === "loading" || state.status === "success") && (
-        <div className="flex flex-col items-center gap-6">
-          <div className="w-full max-w-md">
-            <Skeleton className="h-64 w-full rounded-lg" />
-            <div className="mt-4 space-y-2">
-              <Skeleton className="h-4 w-3/4" />
-              <Skeleton className="h-4 w-1/2" />
-            </div>
-          </div>
-          <p className="text-sm text-muted-foreground animate-pulse">
-            {state.status === "loading"
-              ? "Analyzing your skin sample..."
-              : "Redirecting to consultation..."}
-          </p>
-        </div>
-      )}
-
-      {/* Error state */}
-      {state.status === "error" && (
-        <div className="flex flex-col items-center gap-4">
-          <Alert variant="destructive" className="max-w-md">
-            <AlertDescription>{state.message}</AlertDescription>
-          </Alert>
-          <Button
-            variant="outline"
-            className="rounded-lg"
-            onClick={reset}
-            aria-label="Try again"
-          >
-            <RefreshCw className="mr-2 h-4 w-4" />
-            Try Again
-          </Button>
-        </div>
-      )}
     </div>
   );
 }

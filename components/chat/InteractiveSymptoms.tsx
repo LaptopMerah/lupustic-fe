@@ -1,26 +1,39 @@
+"use client";
+
 import { useState } from "react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
+import { Send } from "lucide-react";
+import type { SymptomsPayload } from "@/types";
 
-const SYMPTOMS = [
-  { id: "hair_loss", label: "Hair loss", score: 2 },
-  { id: "fever", label: "Fever with no apparent cause", score: 2 },
-  { id: "seizures", label: "Seizures", score: 5 },
-  { id: "mouth_sores", label: "Mouth sores", score: 2 },
-  { id: "joint_pain", label: "Joint pain in 2 or more areas", score: 6 },
-  { id: "butterfly_rash", label: "Butterfly rash (on the cheeks and nose)", score: 6 },
+const SYMPTOMS: {
+  id: keyof SymptomsPayload;
+  label: string;
+}[] = [
+  { id: "hair_loss", label: "Hair loss" },
+  { id: "fever_of_unknown_origin", label: "Fever with no apparent cause" },
+  { id: "seizures", label: "Seizures" },
+  { id: "mouth_sores", label: "Mouth sores" },
+  { id: "joint_pain", label: "Joint pain in 2 or more areas" },
+  { id: "butterfly_rash", label: "Butterfly rash (on the cheeks and nose)" },
 ];
 
 interface InteractiveSymptomsProps {
-  onSend?: (content: string) => Promise<void>;
+  onSubmit: (symptoms: SymptomsPayload) => void;
+  disabled?: boolean;
 }
 
-export function InteractiveSymptoms({ onSend }: InteractiveSymptomsProps) {
-  const [selected, setSelected] = useState<Set<string>>(new Set());
+export function InteractiveSymptoms({
+  onSubmit,
+  disabled,
+}: InteractiveSymptomsProps) {
+  const [selected, setSelected] = useState<Set<keyof SymptomsPayload>>(
+    new Set()
+  );
   const [submitted, setSubmitted] = useState(false);
 
-  const toggleSymptom = (id: string) => {
+  const toggleSymptom = (id: keyof SymptomsPayload) => {
     setSelected((prev) => {
       const next = new Set(prev);
       if (next.has(id)) next.delete(id);
@@ -30,49 +43,59 @@ export function InteractiveSymptoms({ onSend }: InteractiveSymptomsProps) {
   };
 
   const handleSubmit = () => {
-    if (!onSend) return;
     setSubmitted(true);
-
-    const selectedSymptoms = SYMPTOMS.filter(s => selected.has(s.id)).map(s => s.label);
-    let message = "I experienced the following symptoms:\n";
-    if (selectedSymptoms.length > 0) {
-      message += selectedSymptoms.map(s => `- ${s}`).join("\n");
-    } else {
-      message = "I have not experienced any of those symptoms.";
-    }
-
-    onSend(message);
+    const payload: SymptomsPayload = {
+      hair_loss: selected.has("hair_loss"),
+      fever_of_unknown_origin: selected.has("fever_of_unknown_origin"),
+      seizures: selected.has("seizures"),
+      mouth_sores: selected.has("mouth_sores"),
+      joint_pain: selected.has("joint_pain"),
+      butterfly_rash: selected.has("butterfly_rash"),
+    };
+    onSubmit(payload);
   };
 
-  if (submitted) return null;
+  const isDisabled = disabled || submitted;
 
   return (
-    <div className="mt-3 flex w-full flex-col gap-3 rounded-lg border border-border bg-white p-4 text-foreground shadow-sm">
-      <div className="space-y-3">
-        {SYMPTOMS.map((symptom) => (
-          <div key={symptom.id} className="flex items-start space-x-3">
-            <Checkbox
-              id={symptom.id}
-              checked={selected.has(symptom.id)}
-              onCheckedChange={() => toggleSymptom(symptom.id)}
-              className="mt-0.5"
-            />
-            <Label
-              htmlFor={symptom.id}
-              className="text-sm font-medium leading-none cursor-pointer peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-            >
-              {symptom.label}
-            </Label>
+    <div className="flex w-full px-4 py-1.5 justify-start">
+      <div className="max-w-[80%] rounded-lg border border-border bg-white text-foreground overflow-hidden md:max-w-[70%]">
+        <div className="px-4 py-3">
+          <p className="mb-3 text-sm font-medium text-foreground">
+            Before we begin, please select any symptoms you have experienced:
+          </p>
+          <div className="space-y-2.5">
+            {SYMPTOMS.map((symptom) => (
+              <div key={symptom.id} className="flex items-start space-x-3">
+                <Checkbox
+                  id={`symptom-${symptom.id}`}
+                  checked={selected.has(symptom.id)}
+                  onCheckedChange={() => toggleSymptom(symptom.id)}
+                  disabled={isDisabled}
+                  className="mt-0.5"
+                />
+                <Label
+                  htmlFor={`symptom-${symptom.id}`}
+                  className="text-sm leading-none cursor-pointer"
+                >
+                  {symptom.label}
+                </Label>
+              </div>
+            ))}
           </div>
-        ))}
+          {!submitted && (
+            <Button
+              onClick={handleSubmit}
+              disabled={disabled}
+              className="mt-4 w-full bg-[#6366F1] hover:bg-[#4F46E5] text-white"
+              size="sm"
+            >
+              <Send className="mr-2 h-4 w-4" />
+              Submit & Start Consultation
+            </Button>
+          )}
+        </div>
       </div>
-      <Button
-        onClick={handleSubmit}
-        className="mt-2 w-full sm:w-auto self-end bg-[#6366F1] hover:bg-[#4F46E5] text-white"
-        size="sm"
-      >
-        Submit Symptoms
-      </Button>
     </div>
   );
 }

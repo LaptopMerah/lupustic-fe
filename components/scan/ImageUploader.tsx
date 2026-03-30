@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef, useCallback, useState } from "react";
-import { Upload, ImageIcon, X } from "lucide-react";
+import { Upload, ImageIcon, X, MessageSquare } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
@@ -171,7 +171,8 @@ export function ImageUploader({
           disabled={isLoading}
           aria-label="Analyze uploaded image for lupus indicators"
         >
-          Analyze Image
+          <MessageSquare className="mr-2 h-5 w-5" />
+          Proceed to Consultation
         </Button>
       )}
     </div>

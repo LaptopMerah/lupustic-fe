@@ -1,78 +1,228 @@
 "use client";
 
 import { useState, useCallback, useEffect, useRef } from "react";
-import { sendMessage } from "@/lib/api/chat";
-import type { ChatMessage, AsyncState } from "@/types";
+import { useRouter } from "next/navigation";
+import { analyzeImage } from "@/lib/api/scan";
+import { sendMessage, getChatHistory } from "@/lib/api/chat";
+import { useScanContext } from "@/lib/ScanContext";
+import type {
+  ChatMessage,
+  AsyncState,
+  SymptomsPayload,
+  FirstChatResponse,
+} from "@/types";
 
-interface StoredScanData {
-  session_id: string;
-  classification: string;
-  confidence: number;
-  answer: string;
-  sources: string[];
-}
+export type ChatPhase = "symptoms" | "chatting";
 
 interface UseChatReturn {
   messages: ChatMessage[];
   sendState: AsyncState<null>;
   isTyping: boolean;
-  send: (content: string) => Promise<void>;
+  phase: ChatPhase;
+  showSymptoms: boolean;
   scanData: { classification: string; confidence: number } | null;
+  hasImage: boolean;
+  submitSymptoms: (symptoms: SymptomsPayload) => Promise<void>;
+  send: (content: string) => Promise<void>;
 }
 
-export function useChat(sessionId: string): UseChatReturn {
+export function useChat(initialUuid: string): UseChatReturn {
+  const router = useRouter();
+  const { imageFile, clearImage } = useScanContext();
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [sendState, setSendState] = useState<AsyncState<null>>({
     status: "idle",
   });
   const [isTyping, setIsTyping] = useState(false);
+  const [phase, setPhase] = useState<ChatPhase>("symptoms");
+  const [showSymptoms, setShowSymptoms] = useState(false);
   const [scanData, setScanData] = useState<{
     classification: string;
     confidence: number;
   } | null>(null);
+  const [sessionId, setSessionId] = useState(initialUuid);
   const hasInitialized = useRef(false);
 
-  // On mount: read scan data from sessionStorage and display initial AI response
+  // On mount: check if we have an image from the scan page
+  // If so, stay in "symptoms" phase. If not, load history from API.
   useEffect(() => {
     if (hasInitialized.current) return;
     hasInitialized.current = true;
 
-    const stored = sessionStorage.getItem("lupustic_scan");
-    if (!stored) return;
-
-    try {
-      const parsedScanData: StoredScanData = JSON.parse(stored);
-      setScanData({
-        classification: parsedScanData.classification,
-        confidence: parsedScanData.confidence,
-      });
-
-      // The /first-chat endpoint already returned the AI's classification report,
-      // so we display it directly as the first assistant message.
-      const assistantMessage: ChatMessage = {
-        role: "assistant",
-        content: parsedScanData.answer,
-        sources: parsedScanData.sources,
-        timestamp: new Date().toISOString(),
-        scanData: {
-          classification: parsedScanData.classification,
-          confidence: parsedScanData.confidence,
-        },
-      };
-
-      const interactiveMessage: ChatMessage = {
-        role: "assistant",
-        content: "Please select any of the following symptoms you have experienced:",
-        interactive: "symptoms",
-        timestamp: new Date().toISOString(),
-      };
-
-      setMessages([assistantMessage, interactiveMessage]);
-    } catch {
-      // Invalid sessionStorage data — silently ignore
+    if (imageFile) {
+      // New scan: show symptoms form
+      setPhase("symptoms");
+      setShowSymptoms(true);
+      return;
     }
-  }, [sessionId]);
 
+    // No image in context — try loading chat history from the API
+    async function loadHistory() {
+      try {
+        const history = await getChatHistory(initialUuid);
+
+        setScanData(
+          history.classification && history.confidence != null
+            ? {
+                classification: history.classification,
+                confidence: history.confidence,
+              }
+            : null
+        );
+        setSessionId(history.session_id);
+
+        // Find the index of the first user message (the raw symptom text from backend)
+        const firstUserIdx = history.messages.findIndex(
+          (m) => m.role === "user"
+        );
+
+        // Convert API messages to ChatMessage format
+        const chatMessages: ChatMessage[] = history.messages
+          .map((msg, idx) => {
+            // Skip the first user message — we'll replace it with the formatted version
+            if (idx === firstUserIdx) {
+              return null;
+            }
+
+            return {
+              role: msg.role as ChatMessage["role"],
+              content: msg.content,
+              sources: msg.sources ?? undefined,
+              timestamp: msg.created_at ?? undefined,
+              // Attach scanData to the first assistant message
+              ...(msg.role === "assistant" &&
+                history.classification &&
+                history.confidence != null &&
+                history.messages.findIndex((m) => m.role === "assistant") ===
+                  idx
+                ? {
+                    scanData: {
+                      classification: history.classification,
+                      confidence: history.confidence,
+                    },
+                  }
+                : {}),
+            } as ChatMessage;
+          })
+          .filter((msg): msg is ChatMessage => msg !== null);
+
+        // Reconstruct the formatted user message from the first user's raw content
+        if (firstUserIdx !== -1) {
+          const rawContent = history.messages[firstUserIdx].content;
+          const rawTimestamp = history.messages[firstUserIdx].created_at;
+
+          // Try to extract symptom names from raw content and rebuild formatted message
+          const formattedMsg: ChatMessage = {
+            role: "user",
+            content: rawContent,
+            timestamp: rawTimestamp ?? undefined,
+          };
+
+          // Insert it where the first user message was (after filtering)
+          // Find how many messages came before the first user message
+          const insertIdx = history.messages
+            .slice(0, firstUserIdx)
+            .filter((m) => m.role !== "user" || history.messages.indexOf(m) !== firstUserIdx)
+            .length;
+          chatMessages.splice(insertIdx, 0, formattedMsg);
+        }
+
+        setMessages(chatMessages);
+        setPhase("chatting");
+        // Show symptoms card in submitted/disabled state
+        setShowSymptoms(true);
+      } catch {
+        // API failed — redirect to scan
+        router.replace("/scan");
+      }
+    }
+
+    loadHistory();
+  }, [imageFile, initialUuid, router]);
+
+  /**
+   * Submit symptoms — calls /first-chat with image + symptoms.
+   * Transitions from "symptoms" to "chatting" phase.
+   */
+  const submitSymptoms = useCallback(
+    async (symptoms: SymptomsPayload) => {
+      if (!imageFile) return;
+
+      setSendState({ status: "loading" });
+      setIsTyping(true);
+
+      // Add a user message showing which symptoms were selected
+      const selectedLabels = Object.entries(symptoms)
+        .filter(([, value]) => value)
+        .map(([key]) => key.replace(/_/g, " "));
+
+      const userSymptomMsg: ChatMessage = {
+        role: "user",
+        content:
+          selectedLabels.length > 0
+            ? `Regarding my skin condition and the symptoms I'm experiencing (${selectedLabels.join(", ")}), do I have lupus?`
+            : "I have not experienced any of those symptoms. Do I have lupus?",
+        timestamp: new Date().toISOString(),
+      };
+      setMessages((prev) => [...prev, userSymptomMsg]);
+
+      try {
+        const data: FirstChatResponse = await analyzeImage(imageFile, symptoms);
+
+        // Store result
+        setScanData({
+          classification: data.classification,
+          confidence: data.confidence,
+        });
+        setSessionId(data.session_id);
+
+        // Update the URL to use the real session_id
+        router.replace(`/chat/${data.session_id}`);
+
+        // Show the AI response
+        const assistantMessage: ChatMessage = {
+          role: "assistant",
+          content: data.answer,
+          sources: data.sources,
+          timestamp: new Date().toISOString(),
+          scanData: {
+            classification: data.classification,
+            confidence: data.confidence,
+          },
+        };
+
+        setMessages((prev) => [...prev, assistantMessage]);
+        setSendState({ status: "success", data: null });
+        setPhase("chatting");
+        // Keep showSymptoms true so the card stays visible
+
+        // Clear the image from context — no longer needed
+        clearImage();
+      } catch (error) {
+        const errorMsg =
+          error instanceof Error
+            ? error.message
+            : "Failed to analyze image. Please try again.";
+        setSendState({ status: "error", message: errorMsg });
+
+        const errorMessage: ChatMessage = {
+          role: "assistant",
+          content:
+            "I'm sorry, I was unable to analyze your image. Please try again or go back to upload a new image.",
+          timestamp: new Date().toISOString(),
+        };
+        setMessages((prev) => [...prev, errorMessage]);
+      } finally {
+        setIsTyping(false);
+      }
+    },
+    [imageFile, clearImage, router]
+  );
+
+  /**
+   * Send a follow-up message in the chat (phase: "chatting").
+   * Calls POST /chat.
+   */
   const send = useCallback(
     async (content: string) => {
       if (!content.trim()) return;
@@ -127,7 +277,11 @@ export function useChat(sessionId: string): UseChatReturn {
     messages,
     sendState,
     isTyping,
-    send,
+    phase,
+    showSymptoms,
     scanData,
+    hasImage: !!imageFile,
+    submitSymptoms,
+    send,
   };
 }

@@ -1,31 +1,34 @@
 "use client";
 
 import { useState, useCallback } from "react";
-import { analyzeImage } from "@/lib/api/scan";
-import type { FirstChatResponse, AsyncState } from "@/types";
+import { useScanContext } from "@/lib/ScanContext";
 
 interface UseScanReturn {
-  state: AsyncState<FirstChatResponse>;
   selectedFile: File | null;
   previewUrl: string | null;
   selectFile: (file: File) => void;
   clearFile: () => void;
-  scan: () => Promise<void>;
-  reset: () => void;
 }
 
+/**
+ * Simplified scan hook — only handles file selection.
+ * No API call here; /first-chat is called from the chat room after symptom selection.
+ */
 export function useScan(): UseScanReturn {
-  const [state, setState] = useState<AsyncState<FirstChatResponse>>({
-    status: "idle",
-  });
+  const { setImage } = useScanContext();
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
 
-  const selectFile = useCallback((file: File) => {
-    setSelectedFile(file);
-    const url = URL.createObjectURL(file);
-    setPreviewUrl(url);
-  }, []);
+  const selectFile = useCallback(
+    (file: File) => {
+      setSelectedFile(file);
+      const url = URL.createObjectURL(file);
+      setPreviewUrl(url);
+      // Also store in context for the chat page
+      setImage(file);
+    },
+    [setImage]
+  );
 
   const clearFile = useCallback(() => {
     if (previewUrl) {
@@ -35,35 +38,10 @@ export function useScan(): UseScanReturn {
     setPreviewUrl(null);
   }, [previewUrl]);
 
-  const scan = useCallback(async () => {
-    if (!selectedFile) return;
-
-    setState({ status: "loading" });
-
-    try {
-      const data = await analyzeImage(selectedFile);
-      setState({ status: "success", data });
-    } catch (error) {
-      const message =
-        error instanceof Error
-          ? error.message
-          : "Unable to analyze image. Please try again.";
-      setState({ status: "error", message });
-    }
-  }, [selectedFile]);
-
-  const reset = useCallback(() => {
-    clearFile();
-    setState({ status: "idle" });
-  }, [clearFile]);
-
   return {
-    state,
     selectedFile,
     previewUrl,
     selectFile,
     clearFile,
-    scan,
-    reset,
   };
 }

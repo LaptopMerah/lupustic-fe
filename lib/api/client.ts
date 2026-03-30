@@ -1,5 +1,4 @@
-// const BASE_URL = "https://lupus-ai-dev.aryagading.com";
-const BASE_URL = "http://127.0.0.1:8000";
+const BASE_URL = "https://lupus-ai-dev.aryagading.com";
 
 export function getAuthToken(): string | null {
   if (typeof document === "undefined") return null;
@@ -17,6 +16,8 @@ export function removeAuthToken() {
   if (typeof document === "undefined") return;
   document.cookie = "auth_token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
 }
+import type { ResponseWrapper } from "@/types";
+
 
 export async function apiFetch<T>(
   path: string,
@@ -24,7 +25,7 @@ export async function apiFetch<T>(
 ): Promise<T> {
   const token = getAuthToken();
   const headers = new Headers(options?.headers);
-  
+
   if (token && !headers.has("Authorization")) {
     headers.set("Authorization", `Bearer ${token}`);
   }
@@ -46,6 +47,8 @@ export async function apiFetch<T>(
       const errorBody = await response.json();
       if (typeof errorBody === "object" && errorBody !== null && "message" in errorBody) {
         errorMessage = String(errorBody.message);
+      } else if (typeof errorBody === "object" && errorBody !== null && "detail" in errorBody) {
+        errorMessage = String(errorBody.detail);
       }
     } catch {
       // ignore JSON parse errors for error body
@@ -53,5 +56,17 @@ export async function apiFetch<T>(
     throw new Error(errorMessage);
   }
 
-  return response.json() as Promise<T>;
+  const json = await response.json();
+
+  // Unwrap ResponseWrapper if present
+  if (
+    typeof json === "object" &&
+    json !== null &&
+    "status" in json &&
+    "data" in json
+  ) {
+    return (json as ResponseWrapper<T>).data;
+  }
+
+  return json as T;
 }

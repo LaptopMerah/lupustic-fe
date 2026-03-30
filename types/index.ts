@@ -1,3 +1,28 @@
+// — API Wrapper —
+export interface ResponseWrapper<T> {
+  status: boolean;
+  data: T;
+}
+
+// — Symptoms —
+export interface SymptomsPayload {
+  hair_loss: boolean;
+  fever_of_unknown_origin: boolean;
+  seizures: boolean;
+  mouth_sores: boolean;
+  joint_pain: boolean;
+  butterfly_rash: boolean;
+}
+
+export const DEFAULT_SYMPTOMS: SymptomsPayload = {
+  hair_loss: false,
+  fever_of_unknown_origin: false,
+  seizures: false,
+  mouth_sores: false,
+  joint_pain: false,
+  butterfly_rash: false,
+};
+
 // — Scan (classify only) —
 export interface ScanRequest {
   image: File;
@@ -13,6 +38,7 @@ export interface FirstChatResponse {
   session_id: string;
   classification: string;
   confidence: number;
+  symptoms_score: number | null;
   answer: string;
   sources: string[];
 }
@@ -26,7 +52,6 @@ export interface ChatMessage {
   sources?: string[];
   timestamp?: string; // ISO string, optional
   scanData?: { classification: string; confidence: number };
-  interactive?: "symptoms";
 }
 
 export interface ChatRequest {
@@ -95,9 +120,4 @@ export interface UserOut {
   dob?: string | null;
   phone_number?: string | null;
   created_at: string;
-}
-
-export interface ResponseWrapper<T> {
-  status: boolean;
-  data: T;
 }
