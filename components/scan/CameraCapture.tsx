@@ -51,12 +51,6 @@ export function CameraCapture({ onCapture, onClose, onUploadClick }: CameraCaptu
 
         streamRef.current = stream;
         setPhase("granted");
-
-        if (videoRef.current) {
-          videoRef.current.srcObject = stream;
-          await videoRef.current.play();
-          setIsReady(true);
-        }
       } catch (err) {
         if (err instanceof DOMException && err.name === "NotAllowedError") {
           setPhase("denied");
@@ -106,6 +100,26 @@ export function CameraCapture({ onCapture, onClose, onUploadClick }: CameraCaptu
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  // ───── Attachment logic ─────
+  // Effect to handle video element when phase is granted and stream is ready
+  useEffect(() => {
+    if (phase === "granted" && streamRef.current && videoRef.current && !isReady) {
+      const video = videoRef.current;
+      video.srcObject = streamRef.current;
+      video
+        .play()
+        .then(() => {
+          setIsReady(true);
+        })
+        .catch((err) => {
+          console.error("Error playing video:", err);
+          // If it fails to play, don't show the error immediately,
+          // as it might be a temporary state during mount.
+          // However, if it's persistent, we might want to show it.
+        });
+    }
+  }, [phase, isReady]);
 
   const handleAllowCamera = useCallback(() => {
     startCamera(facingMode);
