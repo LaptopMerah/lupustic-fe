@@ -21,6 +21,7 @@ export function CameraCapture({ onCapture, onClose, onUploadClick }: CameraCaptu
 
   const [phase, setPhase] = useState<PermissionPhase>("asking");
   const [isReady, setIsReady] = useState(false);
+  const [hasStream, setHasStream] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [facingMode, setFacingMode] = useState<FacingMode>("environment");
   const [isCapturing, setIsCapturing] = useState(false);
@@ -30,6 +31,7 @@ export function CameraCapture({ onCapture, onClose, onUploadClick }: CameraCaptu
       streamRef.current.getTracks().forEach((track) => track.stop());
       streamRef.current = null;
     }
+    setHasStream(false);
   }, []);
 
   const startCamera = useCallback(
@@ -50,6 +52,7 @@ export function CameraCapture({ onCapture, onClose, onUploadClick }: CameraCaptu
         });
 
         streamRef.current = stream;
+        setHasStream(true);
         setPhase("granted");
       } catch (err) {
         if (err instanceof DOMException && err.name === "NotAllowedError") {
@@ -101,10 +104,10 @@ export function CameraCapture({ onCapture, onClose, onUploadClick }: CameraCaptu
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // ───── Attachment logic ─────
+  // Attachment logic
   // Effect to handle video element when phase is granted and stream is ready
   useEffect(() => {
-    if (phase === "granted" && streamRef.current && videoRef.current && !isReady) {
+    if (phase === "granted" && hasStream && videoRef.current && !isReady) {
       const video = videoRef.current;
       video.srcObject = streamRef.current;
       video
@@ -116,10 +119,9 @@ export function CameraCapture({ onCapture, onClose, onUploadClick }: CameraCaptu
           console.error("Error playing video:", err);
           // If it fails to play, don't show the error immediately,
           // as it might be a temporary state during mount.
-          // However, if it's persistent, we might want to show it.
         });
     }
-  }, [phase, isReady]);
+  }, [phase, hasStream, isReady]);
 
   const handleAllowCamera = useCallback(() => {
     startCamera(facingMode);
