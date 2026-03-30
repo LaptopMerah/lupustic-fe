@@ -1,4 +1,4 @@
-const BASE_URL = "https://lupus-ai-dev.aryagading.com";
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL
 
 export function getAuthToken(): string | null {
   if (typeof document === "undefined") return null;
@@ -33,7 +33,7 @@ export async function apiFetch<T>(
   let response: Response;
 
   try {
-    response = await fetch(`${BASE_URL}${path}`, {
+    response = await fetch(`${API_BASE_URL}${path}`, {
       ...options,
       headers
     });
