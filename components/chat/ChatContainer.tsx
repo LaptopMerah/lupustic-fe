@@ -32,7 +32,7 @@ export function ChatContainer({ messages, isTyping, children }: ChatContainerPro
         <div
           className="pointer-events-none absolute inset-0 z-0 opacity-10"
           style={{
-            backgroundImage: "url(/chat-bg.png)",
+            backgroundImage: "url(/chat-bg.webp)",
             backgroundSize: "cover",
             backgroundPosition: "center",
             backgroundRepeat: "repeat",

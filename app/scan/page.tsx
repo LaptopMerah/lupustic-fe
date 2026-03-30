@@ -31,7 +31,7 @@ export default function ScanPage() {
           Skin Analysis
         </h1>
         <p className="mt-2 text-muted-foreground">
-          Upload a clear photo of the affected skin area for AI-powered analysis
+          Take a photo or upload an image of the affected skin area for AI-powered analysis
         </p>
       </div>
 
