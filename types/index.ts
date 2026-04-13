@@ -81,6 +81,18 @@ export interface SessionHistoryResponse {
   messages: MessageOut[];
 }
 
+// — Sessions List —
+export interface SessionSummary {
+  session_id: string;
+  created_at: string | null;
+  classification: string | null;
+  confidence: number | null;
+}
+
+export interface SessionsListResponse {
+  sessions: SessionSummary[];
+}
+
 // — Shared —
 export type RiskLevel = "HIGH" | "MODERATE" | "LOW";
 
@@ -120,4 +132,26 @@ export interface UserOut {
   dob?: string | null;
   phone_number?: string | null;
   created_at: string;
+}
+
+// — Tracker (Records) —
+export interface TrackerEntry {
+  id: string;
+  user_id: string;
+  image: string;           // URL path returned by /upload/image
+  name: string;            // "Where does it appear?"
+  desc: string;            // "Describe it"
+  datetime: string;        // ISO 8601 date-time
+}
+
+export interface CreateTrackerPayload {
+  image: File;
+  name: string;
+  desc: string;
+}
+
+export interface UpdateTrackerPayload {
+  image?: File;
+  name?: string | null;
+  desc?: string | null;
 }

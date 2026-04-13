@@ -1,5 +1,5 @@
 import { apiFetch } from "./client";
-import type { ChatRequest, ChatResponse, SessionHistoryResponse } from "@/types";
+import type { ChatRequest, ChatResponse, SessionHistoryResponse, SessionSummary } from "@/types";
 
 /**
  * Continue an existing chat session with a text question.
@@ -25,4 +25,13 @@ export async function getChatHistory(
   sessionId: string
 ): Promise<SessionHistoryResponse> {
   return apiFetch<SessionHistoryResponse>(`/chat/${sessionId}/history`);
+}
+
+/**
+ * List all chat sessions for the authenticated user.
+ * GET /sessions
+ */
+export async function listSessions(): Promise<SessionSummary[]> {
+  const response = await apiFetch<{ sessions: SessionSummary[] }>("/sessions");
+  return response.sessions;
 }
