@@ -137,8 +137,8 @@ export function SymptomChecker() {
           icon={<CircleDot className="h-5 w-5" />}
           title="Sariawan di Area Mulut atau Hidung"
           subtitle="Pada langit-langit mulut, gusi, atau bagian dalam hidung"
-          checked={state.mouthSores}
-          onCheckedChange={t("mouthSores")}
+          checked={state.oralUlcers}
+          onCheckedChange={t("oralUlcers")}
         >
           <SymptomWarning>
             Bukan disebabkan oleh tergigit, kawat gigi, obat, atau makanan.
@@ -162,8 +162,8 @@ export function SymptomChecker() {
           icon={<Scissors className="h-5 w-5" />}
           title="Rambut Rontok atau Pitak"
           subtitle="Kerontokan rambut di beberapa tempat"
-          checked={state.hairLoss}
-          onCheckedChange={t("hairLoss")}
+          checked={state.nonScarringAlopecia}
+          onCheckedChange={t("nonScarringAlopecia")}
         >
           <SymptomWarning>
             Pada area rontok tidak ada keropeng, nanah, atau bekas luka
@@ -208,17 +208,17 @@ export function SymptomChecker() {
           icon={<Bone className="h-5 w-5" />}
           title="Nyeri, Kaku, atau Bengkak pada Sendi"
           subtitle="Nyeri sendi pada satu atau lebih titik"
-          checked={state.jointPain}
-          onCheckedChange={t("jointPain")}
+          checked={state.jointInvolvement}
+          onCheckedChange={t("jointInvolvement")}
         >
           <SubQuestion
             id="joint-multiple"
             label="Terjadi pada 2 titik sendi atau lebih"
-            checked={state.jointPainMultiple}
-            onChange={t("jointPainMultiple")}
+            checked={state.jointInvolvementMultiple}
+            onChange={t("jointInvolvementMultiple")}
           />
 
-          {state.jointPainMultiple && (
+          {state.jointInvolvementMultiple && (
             <div className="space-y-3 pl-6 border-l-2 border-primary/20">
               <SymptomWarning>
                 Tidak disebabkan oleh jatuh, terbentur, atau aktivitas fisik
@@ -234,18 +234,18 @@ export function SymptomChecker() {
           <SubQuestion
             id="joint-stiff-morning"
             label="Sendi terasa kaku, berat, atau sulit digerakkan saat bangun tidur"
-            checked={state.jointPainStiffMorning}
-            onChange={t("jointPainStiffMorning")}
+            checked={state.jointInvolvementStiffMorning}
+            onChange={t("jointInvolvementStiffMorning")}
           />
           <SubQuestion
             id="joint-swollen"
             label="Sendi terlihat bengkak"
-            checked={state.jointPainSwollen}
-            onChange={t("jointPainSwollen")}
+            checked={state.jointInvolvementSwollen}
+            onChange={t("jointInvolvementSwollen")}
           />
 
-          {errors.jointPain && (
-            <p className="text-xs font-medium text-destructive">{errors.jointPain}</p>
+          {errors.jointInvolvement && (
+            <p className="text-xs font-medium text-destructive">{errors.jointInvolvement}</p>
           )}
         </SymptomCollapsible>
       </div>
