@@ -1,0 +1,47 @@
+"use client";
+
+import { cn } from "@/lib/utils";
+import { SLEDAI_ACTIVITY_LABELS, getSledaiActivityLevel } from "@/lib/sledai";
+
+interface Props {
+  score: number;
+}
+
+const LEVEL_STYLES = {
+  "none": "bg-green-500/10 text-green-700 border-green-200",
+  "mild": "bg-amber-500/10 text-amber-700 border-amber-200",
+  "moderate": "bg-orange-500/10 text-orange-700 border-orange-200",
+  "high": "bg-red-500/10 text-red-700 border-red-200",
+  "very-high": "bg-red-700/10 text-red-800 border-red-300",
+} as const;
+
+export function SledaiScoreDisplay({ score }: Props) {
+  const level = getSledaiActivityLevel(score);
+  const label = SLEDAI_ACTIVITY_LABELS[level];
+
+  return (
+    <div className="sticky top-[73px] z-10 border-b border-border bg-secondary/90 backdrop-blur-sm px-6 py-4">
+      <div className="flex items-center justify-between gap-4">
+        <div>
+          <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+            SLEDAI-2K Score
+          </p>
+          <p className="font-mono text-3xl font-semibold text-foreground">{score}</p>
+        </div>
+
+        <div
+          className={cn(
+            "rounded-lg border px-4 py-2 text-sm font-medium",
+            LEVEL_STYLES[level]
+          )}
+        >
+          {label}
+        </div>
+      </div>
+
+      <p className="mt-3 text-xs text-muted-foreground italic">
+        This screening tool does not replace professional medical diagnosis. Please consult a licensed physician for evaluation.
+      </p>
+    </div>
+  );
+}

@@ -1,4 +1,5 @@
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL
+const API_BASE_URL = "https://lupus-ai-dev.aryagading.com";
+
 
 export function getAuthToken(): string | null {
   if (typeof document === "undefined") return null;

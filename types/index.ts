@@ -155,3 +155,41 @@ export interface UpdateTrackerPayload {
   name?: string | null;
   desc?: string | null;
 }
+
+// — SLEDAI-2K Records —
+export interface SledaiRecord {
+  id: string;
+  user_id: string;
+  score: number;
+  answers: SledaiAnswers;
+  notes: string | null;
+  created_at: string;
+}
+
+export interface CreateSledaiPayload {
+  score: number;
+  answers: SledaiAnswers;
+  notes?: string;
+}
+
+// — SLEDAI-2K —
+export type SledaiCategory =
+  | "neuropsychiatric"
+  | "musculoskeletal"
+  | "renal"
+  | "skin"
+  | "serosal"
+  | "immunologic"
+  | "constitutional";
+
+export interface SledaiCriterion {
+  id: string;
+  label: string;
+  description: string;
+  weight: 8 | 4 | 2 | 1;
+  category: SledaiCategory;
+}
+
+export type SledaiAnswers = Record<string, boolean>;
+
+export type SledaiActivityLevel = "none" | "mild" | "moderate" | "high" | "very-high";

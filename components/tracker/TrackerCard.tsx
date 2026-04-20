@@ -60,7 +60,7 @@ export function TrackerCard({ entry, onDelete }: TrackerCardProps) {
     <>
       <Card className="group overflow-hidden border border-border bg-card transition-all duration-200 hover:shadow-md hover:border-primary/30">
         {/* Image */}
-        <div className="relative aspect-[4/3] w-full overflow-hidden">
+        <div className="relative aspect-4/3 w-full overflow-hidden">
           <img
             src={getImageUrl(entry.image)}
             alt={`Symptom at ${entry.name}`}
