@@ -4,7 +4,6 @@ import { use } from "react";
 import { useChat } from "@/hooks/useChat";
 import { ChatContainer } from "@/components/chat/ChatContainer";
 import { ChatInput } from "@/components/chat/ChatInput";
-import { InteractiveSymptoms } from "@/components/chat/InteractiveSymptoms";
 
 interface ChatPageProps {
   params: Promise<{ uuid: string }>;
@@ -12,30 +11,15 @@ interface ChatPageProps {
 
 export default function ChatPage({ params }: ChatPageProps) {
   const { uuid } = use(params);
-  const {
-    messages,
-    isTyping,
-    phase,
-    showSymptoms,
-    symptomsFromSession,
-    send,
-    submitSymptoms,
-  } = useChat(uuid);
+  const { messages, isTyping, isReady, send } = useChat(uuid);
 
   return (
     <div className="flex h-[calc(100vh-4rem-1px)] flex-col">
-      <ChatContainer messages={messages} isTyping={isTyping}>
-        {/* Symptoms selector — only show if NOT pre-filled from /symptom page */}
-        {showSymptoms && !symptomsFromSession && (
-          <InteractiveSymptoms onSubmit={submitSymptoms} disabled={isTyping} />
-        )}
-      </ChatContainer>
+      <ChatContainer messages={messages} isTyping={isTyping} />
 
-      {/* Chat input only visible after symptoms are submitted */}
-      {phase === "chatting" && (
+      {isReady && (
         <ChatInput onSend={send} disabled={isTyping} />
       )}
     </div>
   );
 }
-

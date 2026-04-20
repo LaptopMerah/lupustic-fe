@@ -12,18 +12,12 @@ import type {
   FirstChatResponse,
 } from "@/types";
 
-export type ChatPhase = "symptoms" | "chatting";
-
 interface UseChatReturn {
   messages: ChatMessage[];
   sendState: AsyncState<null>;
   isTyping: boolean;
-  phase: ChatPhase;
-  showSymptoms: boolean;
-  symptomsFromSession: boolean;
+  isReady: boolean;
   scanData: { classification: string; confidence: number } | null;
-  hasImage: boolean;
-  submitSymptoms: (symptoms: SymptomsPayload) => Promise<void>;
   send: (content: string) => Promise<void>;
 }
 
@@ -35,20 +29,18 @@ export function useChat(initialUuid: string): UseChatReturn {
     status: "idle",
   });
   const [isTyping, setIsTyping] = useState(false);
-  const [phase, setPhase] = useState<ChatPhase>("symptoms");
-  const [showSymptoms, setShowSymptoms] = useState(false);
+  const [isReady, setIsReady] = useState(false);
   const [scanData, setScanData] = useState<{
     classification: string;
     confidence: number;
   } | null>(null);
   const [sessionId, setSessionId] = useState(initialUuid);
-  const [symptomsFromSession, setSymptomsFromSession] = useState(false);
   const hasInitialized = useRef(false);
   const pendingSymptoms = useRef<SymptomsPayload | null>(null);
 
   /**
    * Submit symptoms — calls /first-chat with image + symptoms.
-   * Transitions from "symptoms" to "chatting" phase.
+   * Internal only — triggered automatically from sessionStorage.
    */
   const submitSymptoms = useCallback(
     async (symptoms: SymptomsPayload) => {
@@ -99,8 +91,7 @@ export function useChat(initialUuid: string): UseChatReturn {
 
         setMessages((prev) => [...prev, assistantMessage]);
         setSendState({ status: "success", data: null });
-        setPhase("chatting");
-        // Keep showSymptoms true so the card stays visible
+        setIsReady(true);
 
         // Clear the image from context — no longer needed
         clearImage();
@@ -125,33 +116,28 @@ export function useChat(initialUuid: string): UseChatReturn {
     [imageFile, clearImage, router]
   );
 
-  // On mount: check if we have an image from the scan page
-  // If so, stay in "symptoms" phase. If not, load history from API.
+  // On mount: check if we have an image + symptoms from /symptom page.
+  // If not, load chat history from the API.
   useEffect(() => {
     if (hasInitialized.current) return;
     hasInitialized.current = true;
 
     if (imageFile) {
-      // Check if symptoms were pre-filled from /symptom page
+      // Read symptoms from sessionStorage (set by /symptom page)
       const storedSymptoms = sessionStorage.getItem("lupustic_symptoms");
       if (storedSymptoms) {
-        // Auto-submit with stored symptoms
-        setSymptomsFromSession(true);
         try {
           const symptoms = JSON.parse(storedSymptoms) as SymptomsPayload;
           sessionStorage.removeItem("lupustic_symptoms");
-          // Store for the next effect to pick up
           pendingSymptoms.current = symptoms;
         } catch {
-          // Fallback: show manual symptoms form
-          setPhase("symptoms");
-          setShowSymptoms(true);
+          // No valid symptoms — redirect back to symptom page
+          router.replace("/symptom");
         }
         return;
       }
-      // No stored symptoms: show manual form
-      setPhase("symptoms");
-      setShowSymptoms(true);
+      // Image but no symptoms — redirect to symptom page
+      router.replace("/symptom");
       return;
     }
 
@@ -210,15 +196,12 @@ export function useChat(initialUuid: string): UseChatReturn {
           const rawContent = history.messages[firstUserIdx].content;
           const rawTimestamp = history.messages[firstUserIdx].created_at;
 
-          // Try to extract symptom names from raw content and rebuild formatted message
           const formattedMsg: ChatMessage = {
             role: "user",
             content: rawContent,
             timestamp: rawTimestamp ?? undefined,
           };
 
-          // Insert it where the first user message was (after filtering)
-          // Find how many messages came before the first user message
           const insertIdx = history.messages
             .slice(0, firstUserIdx)
             .filter((m) => m.role !== "user" || history.messages.indexOf(m) !== firstUserIdx)
@@ -227,9 +210,7 @@ export function useChat(initialUuid: string): UseChatReturn {
         }
 
         setMessages(chatMessages);
-        setPhase("chatting");
-        // Show symptoms card in submitted/disabled state
-        setShowSymptoms(true);
+        setIsReady(true);
       } catch {
         // API failed — redirect to scan
         router.replace("/scan");
@@ -249,7 +230,7 @@ export function useChat(initialUuid: string): UseChatReturn {
   }, [submitSymptoms]);
 
   /**
-   * Send a follow-up message in the chat (phase: "chatting").
+   * Send a follow-up message in the chat.
    * Calls POST /chat.
    */
   const send = useCallback(
@@ -306,12 +287,8 @@ export function useChat(initialUuid: string): UseChatReturn {
     messages,
     sendState,
     isTyping,
-    phase,
-    showSymptoms,
-    symptomsFromSession,
+    isReady,
     scanData,
-    hasImage: !!imageFile,
-    submitSymptoms,
     send,
   };
 }
