@@ -137,7 +137,7 @@ SUCCESS:
           │     result === "not_lupus" → "No Lupus Indicators Detected"
           └── <ResultActionCard />
                 IF lupus:
-                  → <Button> "Proceed to Consultation"
+                  → <Button> "Proceed"
                   → crypto.randomUUID() → navigate to /chat/[uuid]
                   → store { result, confidence } in sessionStorage key: "lupustic_scan"
                 IF not_lupus:

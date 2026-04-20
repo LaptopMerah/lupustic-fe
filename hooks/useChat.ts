@@ -20,6 +20,7 @@ interface UseChatReturn {
   isTyping: boolean;
   phase: ChatPhase;
   showSymptoms: boolean;
+  symptomsFromSession: boolean;
   scanData: { classification: string; confidence: number } | null;
   hasImage: boolean;
   submitSymptoms: (symptoms: SymptomsPayload) => Promise<void>;
@@ -41,7 +42,88 @@ export function useChat(initialUuid: string): UseChatReturn {
     confidence: number;
   } | null>(null);
   const [sessionId, setSessionId] = useState(initialUuid);
+  const [symptomsFromSession, setSymptomsFromSession] = useState(false);
   const hasInitialized = useRef(false);
+  const pendingSymptoms = useRef<SymptomsPayload | null>(null);
+
+  /**
+   * Submit symptoms — calls /first-chat with image + symptoms.
+   * Transitions from "symptoms" to "chatting" phase.
+   */
+  const submitSymptoms = useCallback(
+    async (symptoms: SymptomsPayload) => {
+      if (!imageFile) return;
+
+      setSendState({ status: "loading" });
+      setIsTyping(true);
+
+      // Add a user message showing which symptoms were selected
+      const selectedLabels = Object.entries(symptoms)
+        .filter(([, value]) => value)
+        .map(([key]) => key.replace(/_/g, " "));
+
+      const userSymptomMsg: ChatMessage = {
+        role: "user",
+        content:
+          selectedLabels.length > 0
+            ? `Regarding my skin condition and the symptoms I'm experiencing (${selectedLabels.join(", ")}), do I have lupus?`
+            : "I have not experienced any of those symptoms. Do I have lupus?",
+        timestamp: new Date().toISOString(),
+      };
+      setMessages((prev) => [...prev, userSymptomMsg]);
+
+      try {
+        const data: FirstChatResponse = await analyzeImage(imageFile, symptoms);
+
+        // Store result
+        setScanData({
+          classification: data.classification,
+          confidence: data.confidence,
+        });
+        setSessionId(data.session_id);
+
+        // Update the URL to use the real session_id
+        router.replace(`/chat/${data.session_id}`);
+
+        // Show the AI response
+        const assistantMessage: ChatMessage = {
+          role: "assistant",
+          content: data.answer,
+          sources: data.sources,
+          timestamp: new Date().toISOString(),
+          scanData: {
+            classification: data.classification,
+            confidence: data.confidence,
+          },
+        };
+
+        setMessages((prev) => [...prev, assistantMessage]);
+        setSendState({ status: "success", data: null });
+        setPhase("chatting");
+        // Keep showSymptoms true so the card stays visible
+
+        // Clear the image from context — no longer needed
+        clearImage();
+      } catch (error) {
+        const errorMsg =
+          error instanceof Error
+            ? error.message
+            : "Failed to analyze image. Please try again.";
+        setSendState({ status: "error", message: errorMsg });
+
+        const errorMessage: ChatMessage = {
+          role: "assistant",
+          content:
+            "I'm sorry, I was unable to analyze your image. Please try again or go back to upload a new image.",
+          timestamp: new Date().toISOString(),
+        };
+        setMessages((prev) => [...prev, errorMessage]);
+      } finally {
+        setIsTyping(false);
+      }
+    },
+    [imageFile, clearImage, router]
+  );
 
   // On mount: check if we have an image from the scan page
   // If so, stay in "symptoms" phase. If not, load history from API.
@@ -50,7 +132,24 @@ export function useChat(initialUuid: string): UseChatReturn {
     hasInitialized.current = true;
 
     if (imageFile) {
-      // New scan: show symptoms form
+      // Check if symptoms were pre-filled from /symptom page
+      const storedSymptoms = sessionStorage.getItem("lupustic_symptoms");
+      if (storedSymptoms) {
+        // Auto-submit with stored symptoms
+        setSymptomsFromSession(true);
+        try {
+          const symptoms = JSON.parse(storedSymptoms) as SymptomsPayload;
+          sessionStorage.removeItem("lupustic_symptoms");
+          // Store for the next effect to pick up
+          pendingSymptoms.current = symptoms;
+        } catch {
+          // Fallback: show manual symptoms form
+          setPhase("symptoms");
+          setShowSymptoms(true);
+        }
+        return;
+      }
+      // No stored symptoms: show manual form
       setPhase("symptoms");
       setShowSymptoms(true);
       return;
@@ -140,84 +239,14 @@ export function useChat(initialUuid: string): UseChatReturn {
     loadHistory();
   }, [imageFile, initialUuid, router]);
 
-  /**
-   * Submit symptoms — calls /first-chat with image + symptoms.
-   * Transitions from "symptoms" to "chatting" phase.
-   */
-  const submitSymptoms = useCallback(
-    async (symptoms: SymptomsPayload) => {
-      if (!imageFile) return;
-
-      setSendState({ status: "loading" });
-      setIsTyping(true);
-
-      // Add a user message showing which symptoms were selected
-      const selectedLabels = Object.entries(symptoms)
-        .filter(([, value]) => value)
-        .map(([key]) => key.replace(/_/g, " "));
-
-      const userSymptomMsg: ChatMessage = {
-        role: "user",
-        content:
-          selectedLabels.length > 0
-            ? `Regarding my skin condition and the symptoms I'm experiencing (${selectedLabels.join(", ")}), do I have lupus?`
-            : "I have not experienced any of those symptoms. Do I have lupus?",
-        timestamp: new Date().toISOString(),
-      };
-      setMessages((prev) => [...prev, userSymptomMsg]);
-
-      try {
-        const data: FirstChatResponse = await analyzeImage(imageFile, symptoms);
-
-        // Store result
-        setScanData({
-          classification: data.classification,
-          confidence: data.confidence,
-        });
-        setSessionId(data.session_id);
-
-        // Update the URL to use the real session_id
-        router.replace(`/chat/${data.session_id}`);
-
-        // Show the AI response
-        const assistantMessage: ChatMessage = {
-          role: "assistant",
-          content: data.answer,
-          sources: data.sources,
-          timestamp: new Date().toISOString(),
-          scanData: {
-            classification: data.classification,
-            confidence: data.confidence,
-          },
-        };
-
-        setMessages((prev) => [...prev, assistantMessage]);
-        setSendState({ status: "success", data: null });
-        setPhase("chatting");
-        // Keep showSymptoms true so the card stays visible
-
-        // Clear the image from context — no longer needed
-        clearImage();
-      } catch (error) {
-        const errorMsg =
-          error instanceof Error
-            ? error.message
-            : "Failed to analyze image. Please try again.";
-        setSendState({ status: "error", message: errorMsg });
-
-        const errorMessage: ChatMessage = {
-          role: "assistant",
-          content:
-            "I'm sorry, I was unable to analyze your image. Please try again or go back to upload a new image.",
-          timestamp: new Date().toISOString(),
-        };
-        setMessages((prev) => [...prev, errorMessage]);
-      } finally {
-        setIsTyping(false);
-      }
-    },
-    [imageFile, clearImage, router]
-  );
+  // Auto-submit symptoms that were pre-filled from /symptom page
+  useEffect(() => {
+    if (pendingSymptoms.current) {
+      const symptoms = pendingSymptoms.current;
+      pendingSymptoms.current = null;
+      void submitSymptoms(symptoms);
+    }
+  }, [submitSymptoms]);
 
   /**
    * Send a follow-up message in the chat (phase: "chatting").
@@ -279,6 +308,7 @@ export function useChat(initialUuid: string): UseChatReturn {
     isTyping,
     phase,
     showSymptoms,
+    symptomsFromSession,
     scanData,
     hasImage: !!imageFile,
     submitSymptoms,

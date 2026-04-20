@@ -12,10 +12,8 @@ export default function ScanPage() {
 
   const handleProceed = () => {
     if (!selectedFile) return;
-    // Navigate to chat with a temporary UUID — will be replaced by real session_id
-    // after /first-chat returns
-    const tempUuid = crypto.randomUUID();
-    router.push(`/chat/${tempUuid}`);
+    // Navigate to symptom checker — symptoms + image will be sent to /first-chat
+    router.push("/symptom");
   };
 
   return (

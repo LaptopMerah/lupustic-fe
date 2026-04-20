@@ -12,14 +12,21 @@ interface ChatPageProps {
 
 export default function ChatPage({ params }: ChatPageProps) {
   const { uuid } = use(params);
-  const { messages, isTyping, phase, showSymptoms, send, submitSymptoms } =
-    useChat(uuid);
+  const {
+    messages,
+    isTyping,
+    phase,
+    showSymptoms,
+    symptomsFromSession,
+    send,
+    submitSymptoms,
+  } = useChat(uuid);
 
   return (
     <div className="flex h-[calc(100vh-4rem-1px)] flex-col">
       <ChatContainer messages={messages} isTyping={isTyping}>
-        {/* Symptoms selector — stays visible even after submission */}
-        {showSymptoms && (
+        {/* Symptoms selector — only show if NOT pre-filled from /symptom page */}
+        {showSymptoms && !symptomsFromSession && (
           <InteractiveSymptoms onSubmit={submitSymptoms} disabled={isTyping} />
         )}
       </ChatContainer>
@@ -31,3 +38,4 @@ export default function ChatPage({ params }: ChatPageProps) {
     </div>
   );
 }
+

@@ -6,7 +6,7 @@ import {
   Upload,
   ImageIcon,
   X,
-  MessageSquare,
+  ArrowRight,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { CameraCapture } from "@/components/scan/CameraCapture";
@@ -168,8 +168,8 @@ export function ImageUploader({
           disabled={isLoading}
           aria-label="Analyze uploaded image for lupus indicators"
         >
-          <MessageSquare className="mr-2 h-5 w-5" />
-          Proceed to Consultation
+          Proceed
+          <ArrowRight className="h-5 w-5" />
         </Button>
       </div>
     );
