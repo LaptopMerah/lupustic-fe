@@ -20,7 +20,7 @@ export function BuiltForEveryone() {
     <section className="border-b border-border py-16 md:py-24 bg-indigo-50/40 dark:bg-indigo-950/20">
       <div className="mx-auto max-w-6xl px-4 md:px-6">
         <div className="mb-14 text-center">
-          <h2 className="text-3xl font-bold tracking-tight text-foreground md:text-4xl text-indigo-950 dark:text-indigo-100">
+          <h2 className="text-3xl font-bold tracking-tight text-foreground md:text-4xl dark:text-indigo-100">
             {t("title")}
           </h2>
           <p className="mt-4 text-muted-foreground text-lg">{t("subtitle")}</p>
@@ -32,7 +32,7 @@ export function BuiltForEveryone() {
             return (
               <Card
                 key={idx}
-                className="group relative overflow-hidden transition-all duration-300 hover:shadow-xl hover:-translate-y-1 bg-gradient-to-br from-fuchsia-100/80 via-purple-100/50 to-indigo-100/80 dark:from-fuchsia-950/40 dark:via-purple-900/40 dark:to-indigo-950/40 border border-white/60 dark:border-white/10"
+                className="group relative overflow-hidden transition-all duration-300 hover:shadow-xl hover:-translate-y-1 bg-linear-to-br from-fuchsia-100/80 via-purple-100/50 to-indigo-100/80 dark:from-fuchsia-950/40 dark:via-purple-900/40 dark:to-indigo-950/40 border border-white/60 dark:border-white/10"
               >
                 <CardContent className="flex flex-col items-center text-center p-8 gap-4">
                   <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-white/60 dark:bg-black/20 shadow-sm transition-transform duration-300 group-hover:scale-110 group-hover:rotate-3">

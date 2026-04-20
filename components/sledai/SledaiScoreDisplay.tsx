@@ -31,7 +31,7 @@ export function SledaiScoreDisplay({ score }: Props) {
   const label = t(ACTIVITY_LABEL_KEYS[level])
 
   return (
-    <div className="sticky top-[73px] z-10 border-b border-border bg-secondary/90 backdrop-blur-sm px-6 py-4">
+    <div className="sticky top-18.25 z-10 border-b border-border bg-secondary/90 backdrop-blur-sm px-6 py-4">
       <div className="flex items-center justify-between gap-4">
         <div>
           <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">

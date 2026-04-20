@@ -34,7 +34,7 @@ export function PricingSection() {
               </div>
             </CardHeader>
 
-            <CardContent className="px-8 py-6 space-y-4 flex-grow">
+            <CardContent className="px-8 py-6 space-y-4 grow">
               <ul className="space-y-4 text-sm md:text-base text-muted-foreground">
                 {freeBenefits.map((benefit, index) => (
                   <li key={index} className="flex items-start gap-3">
@@ -53,7 +53,7 @@ export function PricingSection() {
           </Card>
 
           <Card className="w-full relative overflow-hidden border-indigo-200 dark:border-indigo-800 shadow-xl dark:bg-indigo-950/20 flex flex-col">
-            <div className="absolute top-0 left-0 right-0 h-2 bg-gradient-to-r from-indigo-500 to-purple-500" />
+            <div className="absolute top-0 left-0 right-0 h-2 bg-linear-to-r from-indigo-500 to-purple-500" />
             <div className="absolute top-0 right-0 py-1 px-3 bg-indigo-500 text-white text-xs font-bold tracking-wider uppercase rounded-bl-lg">
               {t("recommended")}
             </div>
@@ -73,10 +73,10 @@ export function PricingSection() {
               </div>
             </CardHeader>
 
-            <CardContent className="px-8 py-6 space-y-4 flex-grow">
+            <CardContent className="px-8 py-6 space-y-4 grow">
               <ul className="space-y-4 text-sm md:text-base text-slate-700 dark:text-slate-300">
                 {premiumBenefits.map((benefit, index) => (
-                  <li key={index} className="flex items-start gap-3 flex-grow">
+                  <li key={index} className="flex items-start gap-3 grow">
                     <CheckCircle2 className="h-5 w-5 shrink-0 text-indigo-500 dark:text-indigo-400 mt-0.5" />
                     <span>{benefit}</span>
                   </li>
