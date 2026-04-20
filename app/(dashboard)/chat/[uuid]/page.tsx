@@ -14,12 +14,9 @@ export default function ChatPage({ params }: ChatPageProps) {
   const { messages, isTyping, isReady, send } = useChat(uuid);
 
   return (
-    <div className="flex h-[calc(100vh-4rem-1px)] flex-col">
+    <div className="flex h-full flex-col">
       <ChatContainer messages={messages} isTyping={isTyping} />
-
-      {isReady && (
-        <ChatInput onSend={send} disabled={isTyping} />
-      )}
+      {isReady && <ChatInput onSend={send} disabled={isTyping} />}
     </div>
   );
 }

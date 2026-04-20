@@ -13,7 +13,7 @@ import { cn } from "@/lib/utils";
 
 const NAV_LINKS = [
   { href: "/", label: "Home" },
-  { href: "/tracker", label: "Dashboard" },
+  { href: "/symptom-tracker", label: "Dashboard" },
 ] as const;
 
 export function Navbar() {

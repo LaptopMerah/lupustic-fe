@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { DM_Sans, JetBrains_Mono } from "next/font/google";
-import { Navbar } from "@/components/layout/Navbar";
-import { Footer } from "@/components/layout/Footer";
+import { SidebarProvider } from "@/components/layout/SidebarProvider";
+import { LayoutShell } from "@/components/layout/LayoutShell";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { AuthProvider } from "@/hooks/useAuth";
 import { ScanProvider } from "@/lib/ScanContext";
@@ -27,25 +27,23 @@ export const metadata: Metadata = {
 
 export default function RootLayout({
   children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
+}: Readonly<{ children: React.ReactNode }>) {
   return (
     <html
       lang="en"
-      className={`${dmSans.variable} ${jetbrainsMono.variable} h-full antialiased`}
+      className={`${dmSans.variable} ${jetbrainsMono.variable} antialiased`}
     >
-      <body className="min-h-full flex flex-col">
+      <body className="min-h-screen flex flex-col">
         <ScanProvider>
           <AuthProvider>
             <TooltipProvider>
-              <Navbar />
-              <main className="flex-1">{children}</main>
-              <Footer />
+              <SidebarProvider>
+                <LayoutShell>{children}</LayoutShell>
+              </SidebarProvider>
             </TooltipProvider>
           </AuthProvider>
         </ScanProvider>
       </body>
-    </html >
+    </html>
   );
 }

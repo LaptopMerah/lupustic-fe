@@ -4,7 +4,6 @@ import { MedicalDisclaimer } from "@/components/home/MedicalDisclaimer";
 import { WhyEarlyScreening } from "@/components/home/WhyEarlyScreening";
 import { BuiltForEveryone } from "@/components/home/BuiltForEveryone";
 import { PricingSection } from "@/components/home/PricingSection";
-import { Eye, BarChart3, MessageCircle, CalendarClock } from "lucide-react";
 import { FeatureSection } from "@/components/home/FeatureSection";
 
 

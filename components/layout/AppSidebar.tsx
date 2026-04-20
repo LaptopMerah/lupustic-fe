@@ -2,20 +2,23 @@
 
 import { useState, useEffect, useMemo, useCallback } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
+import LogoImg from "@/app/Lupustic.png";
 import {
   MessageSquare,
   Activity,
   Plus,
   PanelLeft,
+  ClipboardPenLine,
 } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
 import { listSessions } from "@/lib/api/chat";
+import { useSidebarCollapsed } from "@/components/layout/SidebarProvider";
+import { SidebarUserFooter } from "@/components/layout/SidebarUserFooter";
 import type { SessionSummary } from "@/types";
-
-const COLLAPSED_KEY = "sidebar_collapsed";
 
 // ─── Helpers ───────────────────────────────────────────────
 function formatShortDate(iso: string): string {
@@ -45,23 +48,9 @@ function classificationLabel(c: string | null): string {
 export function AppSidebar() {
   const pathname = usePathname();
 
-  const [collapsed, setCollapsed] = useState(false);
+  const { collapsed, toggleCollapsed } = useSidebarCollapsed();
   const [sessions, setSessions] = useState<SessionSummary[]>([]);
   const [sessionsLoading, setSessionsLoading] = useState(true);
-
-  // Restore persisted collapsed state after mount
-  useEffect(() => {
-    const stored = localStorage.getItem(COLLAPSED_KEY);
-    if (stored === "true") setCollapsed(true);
-  }, []);
-
-  const toggleCollapsed = useCallback(() => {
-    setCollapsed((prev) => {
-      const next = !prev;
-      localStorage.setItem(COLLAPSED_KEY, String(next));
-      return next;
-    });
-  }, []);
 
   const fetchSessions = useCallback(async () => {
     setSessionsLoading(true);
@@ -79,7 +68,7 @@ export function AppSidebar() {
     fetchSessions();
   }, [fetchSessions]);
 
-  const isOnTrackerPage = pathname.startsWith("/tracker");
+  const isOnTrackerPage = pathname.startsWith("/symptom-tracker");
   const isOnActivityTrackerPage = pathname.startsWith("/activity-tracker");
   const isOnScanPage = pathname.startsWith("/scan");
 
@@ -108,7 +97,7 @@ export function AppSidebar() {
       hoverClass: "hover:bg-primary/10 hover:text-primary",
     },
     {
-      href: "/tracker",
+      href: "/symptom-tracker",
       label: "Symptom Tracker",
       icon: Activity,
       active: isOnTrackerPage,
@@ -119,7 +108,7 @@ export function AppSidebar() {
     {
       href: "/activity-tracker",
       label: "Activity Tracker",
-      icon: Activity,
+      icon: ClipboardPenLine,
       active: isOnActivityTrackerPage,
       activeClass: "bg-violet-500/15 text-violet-600 dark:text-violet-400",
       hoverClass:
@@ -135,15 +124,17 @@ export function AppSidebar() {
       )}
     >
       {/* ── Header with toggle ──────────────────────────── */}
-      <div className={cn("flex h-12 items-center border-b border-border px-3", collapsed ? "justify-center" : "justify-between")}>
+      <div className={cn("flex h-fit items-center border-b border-border px-3", collapsed ? "justify-center" : "justify-between")}>
         {!collapsed && (
-          <span className="text-sm font-semibold text-foreground">Lupustic</span>
+          <Link href="/">
+            <Image src={LogoImg} alt="Lupustic"  className="h-12 my-2 w-auto scale-150" priority  />
+          </Link>
         )}
         <button
           type="button"
           onClick={toggleCollapsed}
           aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
-          className="flex h-7 w-7 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
+          className="flex size-8 my-2 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
         >
           <PanelLeft className="h-4 w-4" />
         </button>
@@ -233,6 +224,8 @@ export function AppSidebar() {
       )}
 
       {collapsed && <div className="flex-1" />}
+
+      <SidebarUserFooter />
     </aside>
   );
 }
