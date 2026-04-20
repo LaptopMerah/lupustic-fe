@@ -1,19 +1,18 @@
-"use client";
+"use client"
 
-import { AlertCircle, CheckCircle2 } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { useTranslations } from "next-intl"
+import { AlertCircle, CheckCircle2 } from "lucide-react"
+import { cn } from "@/lib/utils"
 
 interface ChatResultHeaderProps {
-  classification: string;
-  confidence: number;
+  classification: string
+  confidence: number
 }
 
-export function ChatResultHeader({
-  classification,
-  confidence,
-}: ChatResultHeaderProps) {
-  const isLupus = classification === "lupus";
-  const confidencePercent = Math.round(confidence * 100);
+export function ChatResultHeader({ classification, confidence }: ChatResultHeaderProps) {
+  const t = useTranslations("chatResult")
+  const isLupus = classification === "lupus"
+  const confidencePercent = Math.round(confidence * 100)
 
   return (
     <div
@@ -22,7 +21,6 @@ export function ChatResultHeader({
         isLupus ? "bg-red-50 border-red-200" : "bg-green-50 border-green-200"
       )}
     >
-      {/* Icon */}
       <div
         className={cn(
           "flex h-10 w-10 shrink-0 items-center justify-center rounded-full",
@@ -36,19 +34,15 @@ export function ChatResultHeader({
         )}
       </div>
 
-      {/* Text */}
       <div className="flex-1 min-w-0">
         <p className="text-sm font-semibold text-foreground">
-          {isLupus
-            ? "Possible lupus indicators found"
-            : "No lupus indicators detected"}
+          {isLupus ? t("lupusFound") : t("noLupus")}
         </p>
         <p className="text-xs text-muted-foreground">
-          Computer vision skin analysis &middot; {confidencePercent}% confidence
+          {t("analysisLabel")} &middot; {confidencePercent}% {t("confidence")}
         </p>
       </div>
 
-      {/* Badge */}
       <span
         className={cn(
           "shrink-0 rounded-md border px-3 py-1 text-xs font-medium",
@@ -57,8 +51,8 @@ export function ChatResultHeader({
             : "border-green-200 bg-green-50 text-green-600"
         )}
       >
-        {isLupus ? "Positive" : "Negative"}
+        {isLupus ? t("positive") : t("negative")}
       </span>
     </div>
-  );
+  )
 }

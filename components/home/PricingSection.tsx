@@ -1,47 +1,36 @@
-import { CheckCircle2 } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import Link from "next/link";
+"use client"
+
+import { useTranslations } from "next-intl"
+import { CheckCircle2 } from "lucide-react"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
+import Link from "next/link"
 
 export function PricingSection() {
-  const freeBenefits = [
-    "7 Computer vision skin scan",
-    "Basic result analysis",
-    "Standard confidence scoring",
-  ];
+  const t = useTranslations("pricing")
 
-  const premiumBenefits = [
-    "Unlimited computer vision skin scans",
-    "Continuous health tracking & monitoring",
-    "Personalized daily reminders",
-  ];
+  const freeBenefits = [t("free1"), t("free2"), t("free3")]
+  const premiumBenefits = [t("premium1"), t("premium2"), t("premium3")]
 
   return (
     <section className="border-b border-border py-20 bg-indigo-50/30 dark:bg-background">
       <div className="mx-auto max-w-5xl px-4 md:px-6">
         <div className="text-center mb-16">
           <h2 className="text-3xl font-bold tracking-tight md:text-4xl text-indigo-950 dark:text-indigo-50">
-            Simple, Transparent Pricing
+            {t("title")}
           </h2>
-          <p className="mt-4 text-muted-foreground text-lg">
-            Start for free, or invest in your health with a plan that covers all your screening needs.
-          </p>
+          <p className="mt-4 text-muted-foreground text-lg">{t("subtitle")}</p>
         </div>
 
         <div className="grid md:grid-cols-2 gap-8 lg:gap-12 max-w-4xl mx-auto">
-          {/* Free Plan */}
           <Card className="w-full relative overflow-hidden border-border shadow-sm hover:shadow-md transition-all dark:bg-card flex flex-col">
             <CardHeader className="text-center pt-10 pb-4">
               <CardTitle className="text-2xl font-bold text-foreground mb-2">
-                Basic Free
+                {t("freeTitle")}
               </CardTitle>
-              <CardDescription className="text-base h-10">
-                Essential tools to get started
-              </CardDescription>
+              <CardDescription className="text-base h-10">{t("freeDesc")}</CardDescription>
               <div className="mt-8 font-semibold flex items-baseline justify-center gap-1">
-                <span className="text-5xl font-extrabold tracking-tight text-foreground">
-                  IDR 0
-                </span>
+                <span className="text-5xl font-extrabold tracking-tight text-foreground">IDR 0</span>
               </div>
             </CardHeader>
 
@@ -58,31 +47,29 @@ export function PricingSection() {
 
             <CardFooter className="px-8 py-6">
               <Button asChild variant="outline" className="w-full h-12 text-base font-semibold transition-all hover:-translate-y-0.5">
-                <Link href="/scan">Try for Free</Link>
+                <Link href="/scan">{t("tryForFree")}</Link>
               </Button>
             </CardFooter>
           </Card>
 
-          {/* Premium Plan */}
           <Card className="w-full relative overflow-hidden border-indigo-200 dark:border-indigo-800 shadow-xl dark:bg-indigo-950/20 flex flex-col">
-            {/* Top decorative gradient bar */}
             <div className="absolute top-0 left-0 right-0 h-2 bg-gradient-to-r from-indigo-500 to-purple-500" />
             <div className="absolute top-0 right-0 py-1 px-3 bg-indigo-500 text-white text-xs font-bold tracking-wider uppercase rounded-bl-lg">
-              Recommended
+              {t("recommended")}
             </div>
 
             <CardHeader className="text-center pt-10 pb-4">
               <CardTitle className="text-2xl font-bold text-indigo-600 dark:text-indigo-400 mb-2">
-                Premium Plan
+                {t("premiumTitle")}
               </CardTitle>
               <CardDescription className="text-base h-10 text-indigo-900/70 dark:text-indigo-200/70">
-                Everything you need for comprehensive monitoring
+                {t("premiumDesc")}
               </CardDescription>
               <div className="mt-8 font-semibold flex items-baseline justify-center gap-1">
                 <span className="text-5xl font-extrabold tracking-tight text-slate-900 dark:text-white">
                   IDR 49K
                 </span>
-                <span className="text-muted-foreground font-medium">/month</span>
+                <span className="text-muted-foreground font-medium">{t("perMonth")}</span>
               </div>
             </CardHeader>
 
@@ -99,12 +86,12 @@ export function PricingSection() {
 
             <CardFooter className="px-8 py-6">
               <Button asChild className="w-full h-12 text-base font-semibold bg-indigo-600 hover:bg-indigo-700 text-white shadow-md transition-all hover:-translate-y-0.5 hover:shadow-lg">
-                <Link href="/scan">Get Started Now</Link>
+                <Link href="/scan">{t("getStarted")}</Link>
               </Button>
             </CardFooter>
           </Card>
         </div>
       </div>
     </section>
-  );
+  )
 }

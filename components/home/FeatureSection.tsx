@@ -1,56 +1,39 @@
-import { FeatureCard } from "./FeatureCard";
-import { Eye, BarChart3, MessageCircle, CalendarClock } from "lucide-react";
+"use client"
 
-const features = [
-    {
-        icon: Eye,
-        title: "Computer Vision Scan",
-        description:
-            "Advanced image analysis powered by a trained deep learning model that examines skin lesion patterns associated with Systemic Lupus Erythematosus.",
-    },
-    {
-        icon: BarChart3,
-        title: "Confidence Scoring",
-        description:
-            "Receive a clear confidence percentage alongside your results, helping you understand the strength of the AI's assessment at a glance.",
-    },
-    {
-        icon: MessageCircle,
-        title: "AI Consultation",
-        description:
-            "After your scan, consult our AI assistant to discuss symptoms, learn about next steps, and understand your results in plain language.",
-    },
-    {
-        icon: CalendarClock,
-        title: "Tracker and Reminder",
-        description:
-            "Easily monitor your health and get reminders to stay consistent with your care.",
-    },
-];
+import { useTranslations } from "next-intl"
+import { Eye, BarChart3, MessageCircle, CalendarClock } from "lucide-react"
+import { FeatureCard } from "./FeatureCard"
+
 export function FeatureSection() {
+  const t = useTranslations("features")
 
-    return (
-        <section className="border-b border-border py-16 md:py-20">
-            <div className="mx-auto max-w-6xl px-4 md:px-6">
-                <div className="mb-10 text-center">
-                    <h2 className="text-2xl font-semibold tracking-tight text-foreground md:text-3xl">
-                        What Lupustic Offers
-                    </h2>
-                    <p className="mt-2 text-muted-foreground">
-                        Comprehensive tools for early detection and understanding
-                    </p>
-                </div>
-                <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-                    {features.map((feature) => (
-                        <FeatureCard
-                            key={feature.title}
-                            icon={feature.icon}
-                            title={feature.title}
-                            description={feature.description}
-                        />
-                    ))}
-                </div>
-            </div>
-        </section>
-    );
+  const features = [
+    { icon: Eye, title: t("f1Title"), description: t("f1Desc") },
+    { icon: BarChart3, title: t("f2Title"), description: t("f2Desc") },
+    { icon: MessageCircle, title: t("f3Title"), description: t("f3Desc") },
+    { icon: CalendarClock, title: t("f4Title"), description: t("f4Desc") },
+  ]
+
+  return (
+    <section className="border-b border-border py-16 md:py-20">
+      <div className="mx-auto max-w-6xl px-4 md:px-6">
+        <div className="mb-10 text-center">
+          <h2 className="text-2xl font-semibold tracking-tight text-foreground md:text-3xl">
+            {t("title")}
+          </h2>
+          <p className="mt-2 text-muted-foreground">{t("subtitle")}</p>
+        </div>
+        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+          {features.map((feature) => (
+            <FeatureCard
+              key={feature.title}
+              icon={feature.icon}
+              title={feature.title}
+              description={feature.description}
+            />
+          ))}
+        </div>
+      </div>
+    </section>
+  )
 }

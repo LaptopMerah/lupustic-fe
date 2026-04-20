@@ -1,44 +1,32 @@
-import { Camera, ScanLine, MessageSquare } from "lucide-react";
-import { Card, CardContent } from "@/components/ui/card";
+"use client"
 
-const steps = [
-  {
-    icon: Camera,
-    title: "Upload a Skin Photo",
-    description:
-      "Take or upload a clear photo of the affected skin area for analysis.",
-  },
-  {
-    icon: ScanLine,
-    title: "AI Analyzes for Lupus Indicators",
-    description:
-      "Our computer vision model examines the image and provides a confidence score.",
-  },
-  {
-    icon: MessageSquare,
-    title: "Consult with AI on Your Results",
-    description:
-      "Discuss your results with our AI assistant for deeper symptom consultation.",
-  },
-];
+import { useTranslations } from "next-intl"
+import { Camera, ScanLine, MessageSquare } from "lucide-react"
+import { Card, CardContent } from "@/components/ui/card"
 
 export function HowItWorks() {
+  const t = useTranslations("howItWorks")
+
+  const steps = [
+    { icon: Camera, title: t("step1Title"), description: t("step1Desc") },
+    { icon: ScanLine, title: t("step2Title"), description: t("step2Desc") },
+    { icon: MessageSquare, title: t("step3Title"), description: t("step3Desc") },
+  ]
+
   return (
     <section className="border-b border-border bg-card py-16 md:py-20">
       <div className="mx-auto max-w-6xl px-4 md:px-6">
         <div className="mb-10 text-center">
           <h2 className="text-2xl font-semibold tracking-tight text-foreground md:text-3xl">
-            How It Works
+            {t("title")}
           </h2>
-          <p className="mt-2 text-muted-foreground">
-            Three simple steps to get your results
-          </p>
+          <p className="mt-2 text-muted-foreground">{t("subtitle")}</p>
         </div>
 
         <div className="grid gap-6 md:grid-cols-3">
           {steps.map((step, index) => (
             <Card
-              key={step.title}
+              key={index}
               className="border border-border bg-background shadow-sm transition-shadow duration-200 hover:shadow-md"
             >
               <CardContent className="flex flex-col items-center gap-4 p-6 text-center">
@@ -60,5 +48,5 @@ export function HowItWorks() {
         </div>
       </div>
     </section>
-  );
+  )
 }

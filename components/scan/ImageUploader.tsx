@@ -1,31 +1,26 @@
-"use client";
+"use client"
 
-import { useRef, useCallback, useState } from "react";
-import {
-  Camera,
-  Upload,
-  ImageIcon,
-  X,
-  ArrowRight,
-} from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { CameraCapture } from "@/components/scan/CameraCapture";
-import { cn } from "@/lib/utils";
+import { useRef, useCallback, useState } from "react"
+import { useTranslations } from "next-intl"
+import { Camera, Upload, ImageIcon, X, ArrowRight } from "lucide-react"
+import { Button } from "@/components/ui/button"
+import { CameraCapture } from "@/components/scan/CameraCapture"
+import { cn } from "@/lib/utils"
 
 interface ImageUploaderProps {
-  selectedFile: File | null;
-  previewUrl: string | null;
-  onSelect: (file: File) => void;
-  onClear: () => void;
-  onAnalyze: () => void;
-  isLoading: boolean;
+  selectedFile: File | null
+  previewUrl: string | null
+  onSelect: (file: File) => void
+  onClear: () => void
+  onAnalyze: () => void
+  isLoading: boolean
 }
 
-const MAX_SIZE_MB = 10;
-const MAX_SIZE_BYTES = MAX_SIZE_MB * 1024 * 1024;
-const ACCEPTED_TYPES = ["image/jpeg", "image/png", "image/webp"];
+const MAX_SIZE_MB = 10
+const MAX_SIZE_BYTES = MAX_SIZE_MB * 1024 * 1024
+const ACCEPTED_TYPES = ["image/jpeg", "image/png", "image/webp"]
 
-type InputMode = "choose" | "camera";
+type InputMode = "choose" | "camera"
 
 export function ImageUploader({
   selectedFile,
@@ -35,72 +30,71 @@ export function ImageUploader({
   onAnalyze,
   isLoading,
 }: ImageUploaderProps) {
-  const inputRef = useRef<HTMLInputElement>(null);
-  const [isDragOver, setIsDragOver] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [mode, setMode] = useState<InputMode>("choose");
+  const t = useTranslations("scan")
+  const inputRef = useRef<HTMLInputElement>(null)
+  const [isDragOver, setIsDragOver] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  const [mode, setMode] = useState<InputMode>("choose")
 
   const validateAndSelect = useCallback(
     (file: File) => {
-      setError(null);
+      setError(null)
 
       if (!ACCEPTED_TYPES.includes(file.type)) {
-        setError("Please upload a JPEG, PNG, or WebP image.");
-        return;
+        setError(t("invalidType"))
+        return
       }
 
       if (file.size > MAX_SIZE_BYTES) {
-        setError(`File size must be under ${MAX_SIZE_MB}MB.`);
-        return;
+        setError(t("fileTooLarge", { max: MAX_SIZE_MB }))
+        return
       }
 
-      onSelect(file);
-      setMode("choose");
+      onSelect(file)
+      setMode("choose")
     },
-    [onSelect]
-  );
+    [onSelect, t]
+  )
 
   const handleDrop = useCallback(
     (e: React.DragEvent<HTMLDivElement>) => {
-      e.preventDefault();
-      setIsDragOver(false);
-      const file = e.dataTransfer.files[0];
-      if (file) validateAndSelect(file);
+      e.preventDefault()
+      setIsDragOver(false)
+      const file = e.dataTransfer.files[0]
+      if (file) validateAndSelect(file)
     },
     [validateAndSelect]
-  );
+  )
 
   const handleDragOver = useCallback((e: React.DragEvent<HTMLDivElement>) => {
-    e.preventDefault();
-    setIsDragOver(true);
-  }, []);
+    e.preventDefault()
+    setIsDragOver(true)
+  }, [])
 
   const handleDragLeave = useCallback(() => {
-    setIsDragOver(false);
-  }, []);
+    setIsDragOver(false)
+  }, [])
 
   const handleInputChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
-      const file = e.target.files?.[0];
-      if (file) validateAndSelect(file);
+      const file = e.target.files?.[0]
+      if (file) validateAndSelect(file)
     },
     [validateAndSelect]
-  );
+  )
 
   const handleCameraCapture = useCallback(
     (file: File) => {
-      validateAndSelect(file);
+      validateAndSelect(file)
     },
     [validateAndSelect]
-  );
+  )
 
   const handleUploadFromGallery = useCallback(() => {
-    setMode("choose");
-    // Small delay so state updates before triggering the file picker
-    setTimeout(() => inputRef.current?.click(), 100);
-  }, []);
+    setMode("choose")
+    setTimeout(() => inputRef.current?.click(), 100)
+  }, [])
 
-  // ───── Camera mode (fullscreen overlay) ─────
   if (mode === "camera" && !selectedFile) {
     return (
       <>
@@ -109,8 +103,6 @@ export function ImageUploader({
           onClose={() => setMode("choose")}
           onUploadClick={handleUploadFromGallery}
         />
-
-        {/* Hidden file input (needs to be in DOM even during camera mode) */}
         <input
           ref={inputRef}
           type="file"
@@ -120,10 +112,9 @@ export function ImageUploader({
           aria-label="Upload skin image"
         />
       </>
-    );
+    )
   }
 
-  // ───── Preview mode (image already selected) ─────
   if (previewUrl && selectedFile) {
     return (
       <div className="flex flex-col items-center gap-6">
@@ -137,9 +128,7 @@ export function ImageUploader({
             />
           </div>
           <div className="mt-3 flex items-center justify-between">
-            <span className="truncate text-sm text-muted-foreground">
-              {selectedFile.name}
-            </span>
+            <span className="truncate text-sm text-muted-foreground">{selectedFile.name}</span>
             <Button
               variant="ghost"
               size="sm"
@@ -148,19 +137,15 @@ export function ImageUploader({
               disabled={isLoading}
             >
               <X className="mr-1 h-4 w-4" />
-              Remove
+              {t("remove")}
             </Button>
           </div>
         </div>
 
-        {/* Error message */}
         {error && (
-          <p className="text-sm text-destructive" role="alert">
-            {error}
-          </p>
+          <p className="text-sm text-destructive" role="alert">{error}</p>
         )}
 
-        {/* Analyze button */}
         <Button
           size="lg"
           className="rounded-lg"
@@ -168,17 +153,15 @@ export function ImageUploader({
           disabled={isLoading}
           aria-label="Analyze uploaded image for lupus indicators"
         >
-          Proceed
+          {t("proceed")}
           <ArrowRight className="h-5 w-5" />
         </Button>
       </div>
-    );
+    )
   }
 
-  // ───── Choose mode (default — camera + upload options) ─────
   return (
     <div className="flex flex-col items-center gap-6">
-      {/* Primary action: open camera */}
       <button
         onClick={() => setMode("camera")}
         className={cn(
@@ -191,33 +174,27 @@ export function ImageUploader({
           <Camera className="h-8 w-8 text-primary" />
         </div>
         <div>
-          <p className="text-base font-semibold text-foreground">
-            Take a Photo
-          </p>
-          <p className="mt-1 text-sm text-muted-foreground">
-            Open your camera to capture the affected skin area
-          </p>
+          <p className="text-base font-semibold text-foreground">{t("takePhoto")}</p>
+          <p className="mt-1 text-sm text-muted-foreground">{t("takePhotoDesc")}</p>
         </div>
       </button>
 
-      {/* Divider */}
       <div className="flex w-full max-w-md items-center gap-3">
         <div className="h-px flex-1 bg-border" />
         <span className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
-          or
+          {t("or")}
         </span>
         <div className="h-px flex-1 bg-border" />
       </div>
 
-      {/* Secondary action: drag & drop / file browser */}
       <div
         role="button"
         tabIndex={0}
         onClick={() => inputRef.current?.click()}
         onKeyDown={(e) => {
           if (e.key === "Enter" || e.key === " ") {
-            e.preventDefault();
-            inputRef.current?.click();
+            e.preventDefault()
+            inputRef.current?.click()
           }
         }}
         onDrop={handleDrop}
@@ -239,24 +216,17 @@ export function ImageUploader({
           )}
         </div>
         <div>
-          <p className="text-sm font-medium text-foreground">
-            Upload from Gallery
-          </p>
+          <p className="text-sm font-medium text-foreground">{t("uploadGallery")}</p>
           <p className="mt-1 text-xs text-muted-foreground">
-            Drag & drop or click to browse — JPEG, PNG, WebP up to{" "}
-            {MAX_SIZE_MB}MB
+            {t("uploadGalleryDesc", { max: MAX_SIZE_MB })}
           </p>
         </div>
       </div>
 
-      {/* Error message */}
       {error && (
-        <p className="text-sm text-destructive" role="alert">
-          {error}
-        </p>
+        <p className="text-sm text-destructive" role="alert">{error}</p>
       )}
 
-      {/* Hidden file input */}
       <input
         ref={inputRef}
         type="file"
@@ -266,5 +236,5 @@ export function ImageUploader({
         aria-label="Upload skin image"
       />
     </div>
-  );
+  )
 }

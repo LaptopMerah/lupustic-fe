@@ -1,49 +1,51 @@
-"use client";
+"use client"
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
-import Link from "next/link";
-import { useAuth } from "@/hooks/useAuth";
-import { login as loginApi } from "@/lib/api/auth";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Loader2 } from "lucide-react";
+import { useState } from "react"
+import { useRouter } from "next/navigation"
+import Link from "next/link"
+import { useTranslations } from "next-intl"
+import { useAuth } from "@/hooks/useAuth"
+import { login as loginApi } from "@/lib/api/auth"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
+import { Alert, AlertDescription } from "@/components/ui/alert"
+import { Loader2 } from "lucide-react"
 
 export default function LoginPage() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
+  const t = useTranslations("auth")
+  const [email, setEmail] = useState("")
+  const [password, setPassword] = useState("")
+  const [error, setError] = useState("")
+  const [isLoading, setIsLoading] = useState(false)
 
-  const { loginState } = useAuth();
-  const router = useRouter();
+  const { loginState } = useAuth()
+  const router = useRouter()
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError("");
-    setIsLoading(true);
+    e.preventDefault()
+    setError("")
+    setIsLoading(true)
 
     try {
-      const response = await loginApi({ email, password });
-      await loginState(response.access_token);
-      router.push("/");
-    } catch (err: any) {
-      setError(err.message || "Failed to login");
+      const response = await loginApi({ email, password })
+      await loginState(response.access_token)
+      router.push("/")
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : t("errorLogin"))
     } finally {
-      setIsLoading(false);
+      setIsLoading(false)
     }
-  };
+  }
 
   return (
     <div className="container max-w-lg mx-auto py-12 px-4">
       <Card className="shadow-lg">
         <CardHeader className="space-y-2 text-center">
-          <CardTitle className="text-3xl font-bold tracking-tight">Login to Lupustic</CardTitle>
+          <CardTitle className="text-3xl font-bold tracking-tight">{t("loginTitle")}</CardTitle>
           <CardDescription className="text-base text-muted-foreground">
-            Enter your email and password to access your account
+            {t("loginSubtitle")}
           </CardDescription>
         </CardHeader>
         <CardContent className="mt-4">
@@ -54,7 +56,7 @@ export default function LoginPage() {
               </Alert>
             )}
             <div className="space-y-2 text-left">
-              <Label htmlFor="email">Email</Label>
+              <Label htmlFor="email">{t("email")}</Label>
               <Input
                 id="email"
                 type="email"
@@ -65,7 +67,7 @@ export default function LoginPage() {
               />
             </div>
             <div className="space-y-2 text-left">
-              <Label htmlFor="password">Password</Label>
+              <Label htmlFor="password">{t("password")}</Label>
               <Input
                 id="password"
                 type="password"
@@ -76,19 +78,19 @@ export default function LoginPage() {
               />
             </div>
             <Button type="submit" className="w-full h-11 text-base font-semibold" disabled={isLoading}>
-              {isLoading ? <Loader2 className="mr-2 h-5 w-5 animate-spin" /> : "Sign In"}
+              {isLoading ? <Loader2 className="mr-2 h-5 w-5 animate-spin" /> : t("signIn")}
             </Button>
           </form>
         </CardContent>
         <CardFooter className="flex justify-center pb-8 border-t pt-6 bg-secondary/20">
           <div className="text-sm text-foreground">
-            Don&apos;t have an account?{" "}
+            {t("noAccount")}{" "}
             <Link href="/register" className="text-primary font-semibold hover:underline">
-              Create an account
+              {t("createAccount")}
             </Link>
           </div>
         </CardFooter>
       </Card>
     </div>
-  );
+  )
 }

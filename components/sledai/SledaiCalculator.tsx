@@ -1,20 +1,21 @@
-"use client";
+"use client"
 
-import { useState, useCallback, useMemo } from "react";
-import { Button } from "@/components/ui/button";
-import { Separator } from "@/components/ui/separator";
-import { SledaiCriterionRow } from "@/components/sledai/SledaiCriterionRow";
-import { SledaiScoreDisplay } from "@/components/sledai/SledaiScoreDisplay";
+import { useState, useCallback, useMemo } from "react"
+import { useTranslations } from "next-intl"
+import { Button } from "@/components/ui/button"
+import { Separator } from "@/components/ui/separator"
+import { SledaiCriterionRow } from "@/components/sledai/SledaiCriterionRow"
+import { SledaiScoreDisplay } from "@/components/sledai/SledaiScoreDisplay"
 import {
   SLEDAI_CRITERIA,
   SLEDAI_CATEGORY_LABELS,
   computeSledaiScore,
-} from "@/lib/sledai";
-import type { SledaiAnswers, SledaiCategory } from "@/types";
+} from "@/lib/sledai"
+import type { SledaiAnswers, SledaiCategory } from "@/types"
 
 interface Props {
-  onSubmit: (answers: SledaiAnswers, score: number, notes: string) => void;
-  isSaving: boolean;
+  onSubmit: (answers: SledaiAnswers, score: number, notes: string) => void
+  isSaving: boolean
 }
 
 const CATEGORY_ORDER: SledaiCategory[] = [
@@ -25,29 +26,30 @@ const CATEGORY_ORDER: SledaiCategory[] = [
   "serosal",
   "immunologic",
   "constitutional",
-];
+]
 
 const INITIAL_ANSWERS: SledaiAnswers = Object.fromEntries(
   SLEDAI_CRITERIA.map((c) => [c.id, false])
-);
+)
 
 export function SledaiCalculator({ onSubmit, isSaving }: Props) {
-  const [answers, setAnswers] = useState<SledaiAnswers>(INITIAL_ANSWERS);
-  const [notes, setNotes] = useState("");
+  const t = useTranslations("activityTracker")
+  const [answers, setAnswers] = useState<SledaiAnswers>(INITIAL_ANSWERS)
+  const [notes, setNotes] = useState("")
 
   const handleChange = useCallback((id: string, value: boolean) => {
-    setAnswers((prev) => ({ ...prev, [id]: value }));
-  }, []);
+    setAnswers((prev) => ({ ...prev, [id]: value }))
+  }, [])
 
-  const score = useMemo(() => computeSledaiScore(answers), [answers]);
+  const score = useMemo(() => computeSledaiScore(answers), [answers])
 
   const groupedCriteria = useMemo(() => {
     return CATEGORY_ORDER.map((category) => ({
       category,
       label: SLEDAI_CATEGORY_LABELS[category],
       criteria: SLEDAI_CRITERIA.filter((c) => c.category === category),
-    }));
-  }, []);
+    }))
+  }, [])
 
   return (
     <div>
@@ -84,13 +86,13 @@ export function SledaiCalculator({ onSubmit, isSaving }: Props) {
             htmlFor="sledai-notes"
             className="text-xs font-medium uppercase tracking-wide text-muted-foreground"
           >
-            Notes (optional)
+            {t("notes")}
           </label>
           <textarea
             id="sledai-notes"
             value={notes}
             onChange={(e) => setNotes(e.target.value)}
-            placeholder="Add clinical notes or observations..."
+            placeholder={t("notesPlaceholder")}
             rows={3}
             className="w-full rounded-md border border-border bg-card px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/40 resize-none"
           />
@@ -102,10 +104,10 @@ export function SledaiCalculator({ onSubmit, isSaving }: Props) {
             disabled={isSaving}
             className="gap-2"
           >
-            {isSaving ? "Saving…" : "Save Assessment"}
+            {isSaving ? t("saving") : t("saveAssessment")}
           </Button>
         </div>
       </div>
     </div>
-  );
+  )
 }

@@ -1,31 +1,33 @@
-"use client";
+"use client"
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
-import { ArrowLeft } from "lucide-react";
-import Link from "next/link";
-import { Button } from "@/components/ui/button";
-import { Alert, AlertDescription } from "@/components/ui/alert";
-import { SledaiCalculator } from "@/components/sledai/SledaiCalculator";
-import { createSledaiRecord } from "@/lib/api/sledai";
-import type { SledaiAnswers } from "@/types";
+import { useState } from "react"
+import { useRouter } from "next/navigation"
+import { useTranslations } from "next-intl"
+import { ArrowLeft } from "lucide-react"
+import Link from "next/link"
+import { Button } from "@/components/ui/button"
+import { Alert, AlertDescription } from "@/components/ui/alert"
+import { SledaiCalculator } from "@/components/sledai/SledaiCalculator"
+import { createSledaiRecord } from "@/lib/api/sledai"
+import type { SledaiAnswers } from "@/types"
 
 export default function ActivityTrackerCreatePage() {
-  const router = useRouter();
-  const [isSaving, setIsSaving] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const t = useTranslations("activityTracker")
+  const router = useRouter()
+  const [isSaving, setIsSaving] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
   async function handleSubmit(answers: SledaiAnswers, score: number, notes: string) {
-    setIsSaving(true);
-    setError(null);
+    setIsSaving(true)
+    setError(null)
     try {
-      await createSledaiRecord({ answers, score, notes: notes || undefined });
-      router.push("/activity-tracker");
+      await createSledaiRecord({ answers, score, notes: notes || undefined })
+      router.push("/activity-tracker")
     } catch (err) {
-      setError("Unable to save assessment. Please try again.");
-      console.error("[SledaiCreate]", err);
+      setError(t("errorSave"))
+      console.error("[SledaiCreate]", err)
     } finally {
-      setIsSaving(false);
+      setIsSaving(false)
     }
   }
 
@@ -39,10 +41,8 @@ export default function ActivityTrackerCreatePage() {
             </Link>
           </Button>
           <div>
-            <h1 className="text-xl font-semibold text-foreground">New Assessment</h1>
-            <p className="text-xs text-muted-foreground">
-              Systemic Lupus Erythematosus Disease Activity Index 2000
-            </p>
+            <h1 className="text-xl font-semibold text-foreground">{t("createTitle")}</h1>
+            <p className="text-xs text-muted-foreground">{t("createSubtitle")}</p>
           </div>
         </div>
       </div>
@@ -57,5 +57,5 @@ export default function ActivityTrackerCreatePage() {
 
       <SledaiCalculator onSubmit={handleSubmit} isSaving={isSaving} />
     </>
-  );
+  )
 }
