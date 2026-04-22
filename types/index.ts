@@ -146,6 +146,14 @@ export interface Token {
 
 export type RoleEnum = "user" | "admin" | "member" | "institution";
 
+export interface AdminUpdateUserPayload {
+  name?: string;
+  role?: RoleEnum;
+  gender?: "male" | "female" | null;
+  dob?: string | null;
+  phone_number?: string | null;
+}
+
 export interface UserOut {
   id: string;
   name: string;

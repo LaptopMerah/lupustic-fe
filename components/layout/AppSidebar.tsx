@@ -6,7 +6,7 @@ import Image from "next/image"
 import { usePathname } from "next/navigation"
 import { useTranslations, useLocale } from "next-intl"
 import LogoImg from "@/app/Lupustic.png"
-import { MessageSquare, Activity, Plus, PanelLeft, ClipboardPenLine } from "lucide-react"
+import { MessageSquare, Activity, Plus, PanelLeft, ClipboardPenLine, Users } from "lucide-react"
 import { Separator } from "@/components/ui/separator"
 import { Skeleton } from "@/components/ui/skeleton"
 import { cn } from "@/lib/utils"
@@ -77,6 +77,8 @@ export function AppSidebar() {
   const isOnTrackerPage = pathname.startsWith("/symptom-tracker")
   const isOnActivityTrackerPage = pathname.startsWith("/activity-tracker")
   const isOnScanPage = pathname.startsWith("/scan")
+  const isOnUsersPage = pathname.startsWith("/users")
+  const isAdmin = user?.role === "admin"
 
   const chatSessions = useMemo(
     () =>
@@ -99,6 +101,7 @@ export function AppSidebar() {
       label: t("newScan"),
       icon: Plus,
       active: isOnScanPage,
+      adminOnly: false,
       activeClass: "bg-primary text-primary-foreground",
       hoverClass: "hover:bg-primary/10 hover:text-primary",
     },
@@ -107,6 +110,7 @@ export function AppSidebar() {
       label: t("symptomTracker"),
       icon: Activity,
       active: isOnTrackerPage,
+      adminOnly: false,
       activeClass: "bg-violet-500/15 text-violet-600 dark:text-violet-400",
       hoverClass: "hover:bg-violet-500/10 hover:text-violet-600 dark:hover:text-violet-400",
     },
@@ -115,8 +119,18 @@ export function AppSidebar() {
       label: t("activityTracker"),
       icon: ClipboardPenLine,
       active: isOnActivityTrackerPage,
+      adminOnly: false,
       activeClass: "bg-violet-500/15 text-violet-600 dark:text-violet-400",
       hoverClass: "hover:bg-violet-500/10 hover:text-violet-600 dark:hover:text-violet-400",
+    },
+    {
+      href: "/users-management",
+      label: t("userManagement"),
+      icon: Users,
+      active: isOnUsersPage,
+      adminOnly: true,
+      activeClass: "bg-primary/15 text-primary",
+      hoverClass: "hover:bg-primary/10 hover:text-primary",
     },
   ]
 
@@ -144,21 +158,23 @@ export function AppSidebar() {
       </div>
 
       <div className="px-2 py-2 flex flex-col gap-1">
-        {navItems.map(({ href, label, icon: Icon, active, activeClass, hoverClass }) => (
-          <Link
-            key={href}
-            href={href}
-            title={collapsed ? label : undefined}
-            className={cn(
-              "flex items-center rounded-md px-2.5 py-2.5 text-sm font-medium transition-colors",
-              collapsed ? "justify-center gap-0" : "gap-2.5",
-              active ? activeClass : cn("text-muted-foreground", hoverClass)
-            )}
-          >
-            <Icon className="h-4 w-4 shrink-0" />
-            {!collapsed && <span>{label}</span>}
-          </Link>
-        ))}
+        {navItems
+          .filter(({ adminOnly }) => !adminOnly || isAdmin)
+          .map(({ href, label, icon: Icon, active, activeClass, hoverClass }) => (
+            <Link
+              key={href}
+              href={href}
+              title={collapsed ? label : undefined}
+              className={cn(
+                "flex items-center rounded-md px-2.5 py-2.5 text-sm font-medium transition-colors",
+                collapsed ? "justify-center gap-0" : "gap-2.5",
+                active ? activeClass : cn("text-muted-foreground", hoverClass)
+              )}
+            >
+              <Icon className="h-4 w-4 shrink-0" />
+              {!collapsed && <span>{label}</span>}
+            </Link>
+          ))}
       </div>
 
       <Separator />
