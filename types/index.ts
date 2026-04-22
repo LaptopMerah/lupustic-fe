@@ -131,6 +131,14 @@ export interface UserLogin {
   password?: string;
 }
 
+export interface UserUpdatePayload {
+  name?: string;
+  gender?: "male" | "female" | null;
+  dob?: string | null;
+  phone_number?: string | null;
+  password?: string;
+}
+
 export interface Token {
   access_token: string;
   token_type: string;
