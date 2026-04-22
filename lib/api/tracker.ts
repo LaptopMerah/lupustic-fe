@@ -13,18 +13,18 @@ async function uploadImage(image: File): Promise<string> {
   });
 }
 
-// ─── GET /records ──────────────────────────────────────────
+// ─── GET /symptom-tracker ──────────────────────────────────────────
 // List all symptom records for the current authenticated user
 export async function getTrackerEntries(): Promise<TrackerEntry[]> {
-  return apiFetch<TrackerEntry[]>("/records");
+  return apiFetch<TrackerEntry[]>("/symptom-tracker");
 }
 
-// ─── GET /records/:id ──────────────────────────────────────
+// ─── GET /symptom-tracker/:id ──────────────────────────────────────
 export async function getTrackerEntry(id: string): Promise<TrackerEntry> {
-  return apiFetch<TrackerEntry>(`/records/${id}`);
+  return apiFetch<TrackerEntry>(`/symptom-tracker/${id}`);
 }
 
-// ─── POST /records ─────────────────────────────────────────
+// ─── POST /symptom-tracker ─────────────────────────────────────────
 // Two-step: upload image → create record with returned image path
 export async function createTrackerEntry(
   payload: CreateTrackerPayload
@@ -33,7 +33,7 @@ export async function createTrackerEntry(
   const imagePath = await uploadImage(payload.image);
 
   // Step 2: Create the record with the image path
-  return apiFetch<TrackerEntry>("/records", {
+  return apiFetch<TrackerEntry>("/symptom-tracker", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
@@ -44,7 +44,7 @@ export async function createTrackerEntry(
   });
 }
 
-// ─── PUT /records/:id ──────────────────────────────────────
+// ─── PUT /symptom-tracker/:id ──────────────────────────────────────
 // Update an existing symptom record. All fields are optional.
 export async function updateTrackerEntry(
   id: string,
@@ -61,14 +61,14 @@ export async function updateTrackerEntry(
   if (payload.name !== undefined) body.name = payload.name;
   if (payload.desc !== undefined) body.desc = payload.desc;
 
-  return apiFetch<TrackerEntry>(`/records/${id}`, {
+  return apiFetch<TrackerEntry>(`/symptom-tracker/${id}`, {
     method: "PUT",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(body),
   });
 }
 
-// ─── DELETE /records/:id ───────────────────────────────────
+// ─── DELETE /symptom-tracker/:id ───────────────────────────────────
 export async function deleteTrackerEntry(id: string): Promise<boolean> {
-  return apiFetch<boolean>(`/records/${id}`, { method: "DELETE" });
+  return apiFetch<boolean>(`/symptom-tracker/${id}`, { method: "DELETE" });
 }

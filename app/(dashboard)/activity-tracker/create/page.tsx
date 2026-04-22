@@ -21,7 +21,7 @@ export default function ActivityTrackerCreatePage() {
     setIsSaving(true)
     setError(null)
     try {
-      await createSledaiRecord({ answers, score, notes: notes || undefined })
+      await createSledaiRecord({ data: { answers, score, notes: notes || undefined } })
       router.push("/activity-tracker")
     } catch (err) {
       setError(t("errorSave"))

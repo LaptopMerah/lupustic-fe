@@ -5,10 +5,10 @@ import { Trash2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 import { getSledaiActivityLevel, SLEDAI_CRITERIA } from "@/lib/sledai"
-import type { SledaiRecord, SledaiActivityLevel } from "@/types"
+import type { ActivityTrackerRecord, SledaiActivityLevel, SledaiAnswers } from "@/types"
 
 interface Props {
-  record: SledaiRecord
+  record: ActivityTrackerRecord
   onDelete: (id: string) => void
 }
 
@@ -31,10 +31,15 @@ const ACTIVITY_LABEL_KEYS: Record<SledaiActivityLevel, string> = {
 export function SledaiCard({ record, onDelete }: Props) {
   const t = useTranslations("activityTracker")
   const locale = useLocale()
-  const level = getSledaiActivityLevel(record.score)
+
+  const score = (record.data.score as number) ?? 0
+  const answers = (record.data.answers as SledaiAnswers) ?? {}
+  const notes = (record.data.notes as string | null) ?? null
+
+  const level = getSledaiActivityLevel(score)
   const label = t(ACTIVITY_LABEL_KEYS[level])
 
-  const positiveCount = SLEDAI_CRITERIA.filter((c) => record.answers[c.id]).length
+  const positiveCount = SLEDAI_CRITERIA.filter((c) => answers[c.id]).length
 
   const formattedDate = new Intl.DateTimeFormat(locale === "id" ? "id-ID" : "en-US", {
     month: "short",
@@ -42,7 +47,7 @@ export function SledaiCard({ record, onDelete }: Props) {
     year: "numeric",
     hour: "2-digit",
     minute: "2-digit",
-  }).format(new Date(record.created_at))
+  }).format(new Date(record.datetime))
 
   return (
     <div className="rounded-lg border border-border bg-card p-5 shadow-sm flex flex-col gap-4">
@@ -51,7 +56,7 @@ export function SledaiCard({ record, onDelete }: Props) {
           <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
             SLEDAI-2K Score
           </p>
-          <p className="font-mono text-4xl font-semibold text-foreground">{record.score}</p>
+          <p className="font-mono text-4xl font-semibold text-foreground">{score}</p>
         </div>
 
         <div className="flex flex-col items-end gap-2">
@@ -75,9 +80,9 @@ export function SledaiCard({ record, onDelete }: Props) {
         <span className="font-mono">{formattedDate}</span>
       </div>
 
-      {record.notes && (
+      {notes && (
         <p className="text-xs text-muted-foreground border-t border-border pt-3 leading-relaxed">
-          {record.notes}
+          {notes}
         </p>
       )}
     </div>

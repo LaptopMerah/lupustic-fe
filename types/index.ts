@@ -37,8 +37,10 @@ export interface ClassificationResponse {
 export interface FirstChatResponse {
   session_id: string;
   classification: string;
-  confidence: number;
-  symptoms_score: number | null;
+  image_classification: string;
+  image_confidence: number;
+  clinical_domains?: Record<string, unknown> | number | null;
+  clinical_domains_point?: number | null;
   answer: string;
   sources: string[];
 }
@@ -51,7 +53,12 @@ export interface ChatMessage {
   content: string;
   sources?: string[];
   timestamp?: string; // ISO string, optional
-  scanData?: { classification: string; confidence: number };
+  scanData?: {
+    classification: string;
+    image_classification: string;
+    image_confidence: number;
+    clinical_domains_point: number;
+  };
 }
 
 export interface ChatRequest {
@@ -77,7 +84,10 @@ export interface MessageOut {
 export interface SessionHistoryResponse {
   session_id: string;
   classification: string | null;
+  image_classification: string | null;
   confidence: number | null;
+  clinical_domains?: Record<string, unknown> | null;
+  clinical_domains_point?: number| null;
   messages: MessageOut[];
 }
 
@@ -86,7 +96,9 @@ export interface SessionSummary {
   session_id: string;
   created_at: string | null;
   classification: string | null;
+  image_classification: string | null;
   confidence: number | null;
+  clinical_domains?: Record<string, unknown> | null;
 }
 
 export interface SessionsListResponse {
@@ -124,6 +136,8 @@ export interface Token {
   token_type: string;
 }
 
+export type RoleEnum = "user" | "admin" | "member" | "institution";
+
 export interface UserOut {
   id: string;
   name: string;
@@ -131,6 +145,7 @@ export interface UserOut {
   gender?: "male" | "female" | null;
   dob?: string | null;
   phone_number?: string | null;
+  role?: RoleEnum;
   created_at: string;
 }
 
@@ -156,7 +171,23 @@ export interface UpdateTrackerPayload {
   desc?: string | null;
 }
 
-// — SLEDAI-2K Records —
+// — Activity Tracker (API response shape) —
+export interface ActivityTrackerRecord {
+  id: string;
+  user_id: string;
+  data: Record<string, unknown>;
+  datetime: string;
+}
+
+export interface CreateActivityTrackerPayload {
+  data: Record<string, unknown>;
+}
+
+export interface UpdateActivityTrackerPayload {
+  data?: Record<string, unknown> | null;
+}
+
+// — SLEDAI-2K (frontend scoring model — maps into ActivityTracker.data) —
 export interface SledaiRecord {
   id: string;
   user_id: string;

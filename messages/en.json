@@ -16,10 +16,11 @@
     "yesterday": "Yesterday",
     "daysAgo": "{days}d ago",
     "lupus": "Lupus",
-    "other": "Other",
-    "unknown": "Unknown",
+    "nonLupus": "Non Lupus",
     "expandSidebar": "Expand sidebar",
-    "collapseSidebar": "Collapse sidebar"
+    "collapseSidebar": "Collapse sidebar",
+    "sessionsError": "Failed to load sessions",
+    "retry": "Retry"
   },
   "footer": {
     "rights": "All rights reserved."
@@ -218,7 +219,9 @@
     "lupusFound": "Possible lupus indicators found",
     "noLupus": "No lupus indicators detected",
     "analysisLabel": "Computer vision skin analysis",
-    "confidence": "confidence",
+    "confidence": "Confidence",
+    "imageScan": "AI Scan Result",
+    "symptomPoints": "Symptom Points",
     "positive": "Positive",
     "negative": "Negative"
   },

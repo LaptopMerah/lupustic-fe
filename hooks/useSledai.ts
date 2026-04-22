@@ -1,11 +1,11 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import type { SledaiRecord } from "@/types";
+import type { ActivityTrackerRecord } from "@/types";
 import { getSledaiRecords, deleteSledaiRecord } from "@/lib/api/sledai";
 
 interface UseSledaiReturn {
-  records: SledaiRecord[];
+  records: ActivityTrackerRecord[];
   isLoading: boolean;
   error: string | null;
   removeRecord: (id: string) => Promise<void>;
@@ -13,7 +13,7 @@ interface UseSledaiReturn {
 }
 
 export function useSledai(): UseSledaiReturn {
-  const [records, setRecords] = useState<SledaiRecord[]>([]);
+  const [records, setRecords] = useState<ActivityTrackerRecord[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 

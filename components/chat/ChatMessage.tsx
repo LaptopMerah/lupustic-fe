@@ -36,7 +36,9 @@ export function ChatMessage({ message }: ChatMessageProps) {
         {!isUser && message.scanData && (
           <ChatResultHeader
             classification={message.scanData.classification}
-            confidence={message.scanData.confidence}
+            imageClassification={message.scanData.image_classification}
+            imageConfidence={message.scanData.image_confidence}
+            clinical_domains_point={message.scanData.clinical_domains_point}
           />
         )}
         <div className={cn(!isUser && "px-4 py-2.5")}>

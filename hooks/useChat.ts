@@ -17,7 +17,12 @@ interface UseChatReturn {
   sendState: AsyncState<null>;
   isTyping: boolean;
   isReady: boolean;
-  scanData: { classification: string; confidence: number } | null;
+  scanData: {
+    classification: string;
+    image_classification: string;
+    image_confidence: number;
+    clinical_domains_point: number;
+  } | null;
   send: (content: string) => Promise<void>;
 }
 
@@ -32,7 +37,9 @@ export function useChat(initialUuid: string): UseChatReturn {
   const [isReady, setIsReady] = useState(false);
   const [scanData, setScanData] = useState<{
     classification: string;
-    confidence: number;
+    image_classification: string;
+    image_confidence: number;
+    clinical_domains_point: number;
   } | null>(null);
   const [sessionId, setSessionId] = useState(initialUuid);
   const hasInitialized = useRef(false);
@@ -49,17 +56,25 @@ export function useChat(initialUuid: string): UseChatReturn {
       setSendState({ status: "loading" });
       setIsTyping(true);
 
-      // Add a user message showing which symptoms were selected
-      const selectedLabels = Object.entries(symptoms)
-        .filter(([, value]) => value)
-        .map(([key]) => key.replace(/_/g, " "));
+      const SYMPTOM_LABELS: Record<keyof SymptomsPayload, string> = {
+        hair_loss: "Hair loss",
+        fever_of_unknown_origin: "Fever of unknown origin",
+        seizures: "Seizures",
+        mouth_sores: "Mouth sores",
+        joint_pain: "Joint pain",
+        butterfly_rash: "Butterfly rash",
+      };
+
+      const selectedLabels = (Object.keys(symptoms) as Array<keyof SymptomsPayload>)
+        .filter((key) => symptoms[key])
+        .map((key) => SYMPTOM_LABELS[key]);
 
       const userSymptomMsg: ChatMessage = {
         role: "user",
         content:
           selectedLabels.length > 0
-            ? `Regarding my skin condition and the symptoms I'm experiencing (${selectedLabels.join(", ")}), do I have lupus?`
-            : "I have not experienced any of those symptoms. Do I have lupus?",
+            ? `I have uploaded a skin image for analysis. I am also experiencing the following symptoms: ${selectedLabels.join(", ")}. Could these be indicators of lupus?`
+            : "I have uploaded a skin image for analysis. I have not experienced any of the listed symptoms. Could this be lupus?",
         timestamp: new Date().toISOString(),
       };
       setMessages((prev) => [...prev, userSymptomMsg]);
@@ -67,10 +82,13 @@ export function useChat(initialUuid: string): UseChatReturn {
       try {
         const data: FirstChatResponse = await analyzeImage(imageFile, symptoms);
 
+
         // Store result
         setScanData({
           classification: data.classification,
-          confidence: data.confidence,
+          image_classification: data.image_classification,
+          image_confidence: data.image_confidence,
+          clinical_domains_point: data.clinical_domains_point ?? 0,
         });
         setSessionId(data.session_id);
 
@@ -85,7 +103,9 @@ export function useChat(initialUuid: string): UseChatReturn {
           timestamp: new Date().toISOString(),
           scanData: {
             classification: data.classification,
-            confidence: data.confidence,
+            image_classification: data.image_classification,
+            image_confidence: data.image_confidence,
+            clinical_domains_point: data.clinical_domains_point ?? 0,
           },
         };
 
@@ -146,11 +166,15 @@ export function useChat(initialUuid: string): UseChatReturn {
       try {
         const history = await getChatHistory(initialUuid);
 
+
+
         setScanData(
           history.classification && history.confidence != null
             ? {
-                classification: history.classification,
-                confidence: history.confidence,
+                classification: history.classification ?? "",
+                image_classification: history.image_classification ?? history.classification ?? "",
+                image_confidence: history.confidence,
+                clinical_domains_point: history.clinical_domains_point ?? 0,
               }
             : null
         );
@@ -178,12 +202,13 @@ export function useChat(initialUuid: string): UseChatReturn {
               ...(msg.role === "assistant" &&
                 history.classification &&
                 history.confidence != null &&
-                history.messages.findIndex((m) => m.role === "assistant") ===
-                  idx
+                history.messages.findIndex((m) => m.role === "assistant") === idx
                 ? {
                     scanData: {
-                      classification: history.classification,
-                      confidence: history.confidence,
+                      classification: history.classification ?? "",
+                      image_classification: history.image_classification ?? history.classification ?? "",
+                      image_confidence: history.confidence,
+                      clinical_domains_point: history.clinical_domains_point,
                     },
                   }
                 : {}),

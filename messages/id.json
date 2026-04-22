@@ -16,10 +16,11 @@
     "yesterday": "Kemarin",
     "daysAgo": "{days}h lalu",
     "lupus": "Lupus",
-    "other": "Lainnya",
-    "unknown": "Tidak Diketahui",
+    "nonLupus": "Non Lupus",
     "expandSidebar": "Perluas sidebar",
-    "collapseSidebar": "Perkecil sidebar"
+    "collapseSidebar": "Perkecil sidebar",
+    "sessionsError": "Gagal memuat sesi",
+    "retry": "Coba lagi"
   },
   "footer": {
     "rights": "Hak cipta dilindungi."
@@ -218,7 +219,9 @@
     "lupusFound": "Indikator lupus potensial ditemukan",
     "noLupus": "Tidak ada indikator lupus yang terdeteksi",
     "analysisLabel": "Analisis kulit computer vision",
-    "confidence": "kepercayaan",
+    "confidence": "Kepercayaan",
+    "imageScan": "Hasil Scan AI",
+    "symptomPoints": "Poin Gejala",
     "positive": "Positif",
     "negative": "Negatif"
   },

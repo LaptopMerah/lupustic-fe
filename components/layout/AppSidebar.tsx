@@ -13,6 +13,7 @@ import { cn } from "@/lib/utils"
 import { listSessions } from "@/lib/api/chat"
 import { useSidebarCollapsed } from "@/components/layout/SidebarProvider"
 import { SidebarUserFooter } from "@/components/layout/SidebarUserFooter"
+import { useAuth } from "@/hooks/useAuth"
 import type { SessionSummary } from "@/types"
 
 function formatShortDate(iso: string, locale: string): string {
@@ -28,8 +29,10 @@ export function AppSidebar() {
   const locale = useLocale()
   const pathname = usePathname()
   const { collapsed, toggleCollapsed } = useSidebarCollapsed()
+  const { user, isLoading: authLoading } = useAuth()
   const [sessions, setSessions] = useState<SessionSummary[]>([])
-  const [sessionsLoading, setSessionsLoading] = useState(true)
+  const [sessionsLoading, setSessionsLoading] = useState(false)
+  const [sessionsError, setSessionsError] = useState(false)
 
   const formatRelativeDate = useCallback(
     (iso: string): string => {
@@ -46,27 +49,30 @@ export function AppSidebar() {
 
   const classificationLabel = useCallback(
     (c: string | null): string => {
-      if (!c) return t("unknown")
-      return c === "lupus" ? t("lupus") : t("other")
+      return c === "lupus" ? t("lupus") : t("nonLupus")
     },
     [t]
   )
 
   const fetchSessions = useCallback(async () => {
     setSessionsLoading(true)
+    setSessionsError(false)
     try {
       const data = await listSessions()
       setSessions(data)
     } catch {
       setSessions([])
+      setSessionsError(true)
     } finally {
       setSessionsLoading(false)
     }
   }, [])
 
   useEffect(() => {
-    fetchSessions()
-  }, [fetchSessions])
+    if (!authLoading && user) {
+      fetchSessions().catch(() => {})
+    }
+  }, [authLoading, user, fetchSessions])
 
   const isOnTrackerPage = pathname.startsWith("/symptom-tracker")
   const isOnActivityTrackerPage = pathname.startsWith("/activity-tracker")
@@ -171,6 +177,17 @@ export function AppSidebar() {
                 {Array.from({ length: 4 }).map((_, i) => (
                   <Skeleton key={i} className="h-10 w-full rounded-md" />
                 ))}
+              </div>
+            ) : sessionsError ? (
+              <div className="px-2.5 space-y-1">
+                <p className="text-xs text-muted-foreground italic">{t("sessionsError")}</p>
+                <button
+                  type="button"
+                  onClick={fetchSessions}
+                  className="text-xs text-primary hover:underline"
+                >
+                  {t("retry")}
+                </button>
               </div>
             ) : chatSessions.length > 0 ? (
               <nav className="space-y-0.5">

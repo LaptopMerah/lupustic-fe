@@ -3,10 +3,10 @@
 import { Skeleton } from "@/components/ui/skeleton";
 import { SledaiCard } from "@/components/sledai/SledaiCard";
 import { SledaiEmptyState } from "@/components/sledai/SledaiEmptyState";
-import type { SledaiRecord } from "@/types";
+import type { ActivityTrackerRecord } from "@/types";
 
 interface Props {
-  records: SledaiRecord[];
+  records: ActivityTrackerRecord[];
   isLoading: boolean;
   onDelete: (id: string) => void;
 }
@@ -27,7 +27,7 @@ export function SledaiGrid({ records, isLoading, onDelete }: Props) {
   }
 
   const sorted = [...records].sort(
-    (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+    (a, b) => new Date(b.datetime).getTime() - new Date(a.datetime).getTime()
   );
 
   return (
