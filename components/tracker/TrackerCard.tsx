@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { MapPin, MoreVertical, Trash2 } from "lucide-react";
+import { toast } from "sonner";
 import { Card, CardContent } from "@/components/ui/card";
 import {
   DropdownMenu,
@@ -48,8 +49,9 @@ export function TrackerCard({ entry, onDelete }: TrackerCardProps) {
     setIsDeleting(true);
     try {
       await onDelete(entry.id);
+      toast.success("Entry deleted");
     } catch {
-      // error handled in hook
+      toast.error("Failed to delete entry");
     } finally {
       setIsDeleting(false);
       setDeleteOpen(false);

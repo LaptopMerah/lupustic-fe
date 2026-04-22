@@ -1,16 +1,21 @@
 "use client"
 
+import { useEffect } from "react"
 import Link from "next/link"
 import { useTranslations } from "next-intl"
+import { toast } from "sonner"
 import { Plus } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { Alert, AlertDescription } from "@/components/ui/alert"
 import { SledaiGrid } from "@/components/sledai/SledaiGrid"
 import { useSledai } from "@/hooks/useSledai"
 
 export default function ActivityTrackerPage() {
   const t = useTranslations("activityTracker")
   const { records, isLoading, error, removeRecord } = useSledai()
+
+  useEffect(() => {
+    if (error) toast.error(error)
+  }, [error])
 
   return (
     <>
@@ -20,7 +25,7 @@ export default function ActivityTrackerPage() {
             <h1 className="text-xl font-semibold text-foreground">{t("title")}</h1>
             <p className="text-xs text-muted-foreground">{t("subtitle")}</p>
           </div>
-          <Button asChild size="sm" className="gap-2">
+          <Button asChild className="gap-2">
             <Link href="/activity-tracker/create">
               <Plus className="h-4 w-4" />
               <span className="hidden sm:inline">{t("newAssessment")}</span>
@@ -30,11 +35,6 @@ export default function ActivityTrackerPage() {
       </div>
 
       <div className="p-6">
-        {error && (
-          <Alert variant="destructive" className="mb-6">
-            <AlertDescription>{error}</AlertDescription>
-          </Alert>
-        )}
         <SledaiGrid records={records} isLoading={isLoading} onDelete={removeRecord} />
       </div>
     </>

@@ -4,20 +4,19 @@ import { useState } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
 import { useTranslations } from "next-intl"
+import { toast } from "sonner"
 import { useAuth } from "@/hooks/useAuth"
 import { login as loginApi } from "@/lib/api/auth"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Loader2 } from "lucide-react"
 
 export default function LoginPage() {
   const t = useTranslations("auth")
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
-  const [error, setError] = useState("")
   const [isLoading, setIsLoading] = useState(false)
 
   const { loginState } = useAuth()
@@ -25,15 +24,15 @@ export default function LoginPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    setError("")
     setIsLoading(true)
 
     try {
       const response = await loginApi({ email, password })
       await loginState(response.access_token)
+      toast.success(t("loginSuccess"))
       router.push("/")
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : t("errorLogin"))
+      toast.error(err instanceof Error ? err.message : t("errorLogin"))
     } finally {
       setIsLoading(false)
     }
@@ -50,11 +49,6 @@ export default function LoginPage() {
         </CardHeader>
         <CardContent className="mt-4">
           <form onSubmit={handleSubmit} className="space-y-5">
-            {error && (
-              <Alert variant="destructive">
-                <AlertDescription>{error}</AlertDescription>
-              </Alert>
-            )}
             <div className="space-y-2 text-left">
               <Label htmlFor="email">{t("email")}</Label>
               <Input

@@ -168,7 +168,8 @@
     "describeIt": "Deskripsikan",
     "describePlaceholder": "Deskripsikan tampilan gejala, sensasi, ukuran...",
     "cancel": "Batal",
-    "saveEntry": "Simpan Entri",
+    "save" :"Simpan", 
+    "saveEntry": "Gejala berhasil dibuat",
     "saving": "Menyimpan…",
     "errorImage": "Silakan unggah gambar",
     "errorImageType": "Silakan unggah file gambar (JPEG, PNG, WebP)",
@@ -195,7 +196,8 @@
     "emptyDesc": "Rekam penilaian SLEDAI-2K pertama Anda untuk mulai melacak aktivitas penyakit.",
     "notes": "Catatan (opsional)",
     "notesPlaceholder": "Tambahkan catatan klinis atau observasi...",
-    "saveAssessment": "Simpan Penilaian",
+    "save" :"Simpan", 
+    "saveAssessment": "Penilaian berhasil dibuat",
     "saving": "Menyimpan…",
     "criteriaPositive": "{count} dari {total} kriteria positif",
     "activityNone": "Tidak Ada Aktivitas",
@@ -246,8 +248,10 @@
     "passwordPlaceholder": "Kosongkan jika tidak ingin mengganti password",
     "passwordHint": "Isi hanya jika ingin mengganti password.",
     "save": "Simpan Perubahan",
+    "saveSuccess": "Profil diperbarui",
     "saving": "Menyimpan...",
-    "cancel": "Batal"
+    "cancel": "Batal",
+    "errorSave": "Gagal menyimpan profil"
   },
   "auth": {
     "loginTitle": "Masuk ke Lupustic",
@@ -271,6 +275,8 @@
     "alreadyAccount": "Sudah punya akun?",
     "logIn": "Masuk",
     "errorGender": "Silakan pilih jenis kelamin.",
-    "errorRegister": "Gagal mendaftar akun"
+    "errorRegister": "Gagal mendaftar akun",
+    "loginSuccess": "Selamat datang kembali!",
+    "registerSuccess": "Akun berhasil dibuat!"
   }
 }

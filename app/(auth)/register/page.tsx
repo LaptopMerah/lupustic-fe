@@ -4,13 +4,13 @@ import { useState } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
 import { useTranslations } from "next-intl"
+import { toast } from "sonner"
 import { useAuth } from "@/hooks/useAuth"
 import { register as registerApi, login as loginApi } from "@/lib/api/auth"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Loader2 } from "lucide-react"
 
 export default function RegisterPage() {
@@ -23,8 +23,6 @@ export default function RegisterPage() {
     dob: "",
     phone_number: "",
   })
-
-  const [error, setError] = useState("")
   const [isLoading, setIsLoading] = useState(false)
 
   const { loginState } = useAuth()
@@ -33,11 +31,10 @@ export default function RegisterPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!formData.gender) {
-      setError(t("errorGender"))
+      toast.error(t("errorGender"))
       return
     }
 
-    setError("")
     setIsLoading(true)
 
     try {
@@ -55,10 +52,10 @@ export default function RegisterPage() {
         password: formData.password,
       })
       await loginState(loginResponse.access_token)
-
+      toast.success(t("registerSuccess"))
       router.push("/")
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : t("errorRegister"))
+      toast.error(err instanceof Error ? err.message : t("errorRegister"))
     } finally {
       setIsLoading(false)
     }
@@ -79,12 +76,6 @@ export default function RegisterPage() {
         </CardHeader>
         <CardContent className="mt-2">
           <form onSubmit={handleSubmit} className="space-y-5">
-            {error && (
-              <Alert variant="destructive">
-                <AlertDescription>{error}</AlertDescription>
-              </Alert>
-            )}
-
             <div className="space-y-2 text-left">
               <Label htmlFor="name">
                 {t("fullName")} <span className="text-destructive">*</span>

@@ -7,6 +7,7 @@ import { LayoutShell } from "@/components/layout/LayoutShell"
 import { TooltipProvider } from "@/components/ui/tooltip"
 import { AuthProvider } from "@/hooks/useAuth"
 import { ScanProvider } from "@/lib/ScanContext"
+import { Toaster } from "sonner"
 import "./globals.css"
 
 const dmSans = DM_Sans({
@@ -49,6 +50,7 @@ export default async function RootLayout({
               </TooltipProvider>
             </AuthProvider>
           </ScanProvider>
+          <Toaster position="top-right" richColors />
         </NextIntlClientProvider>
       </body>
     </html>

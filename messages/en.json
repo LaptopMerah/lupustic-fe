@@ -168,7 +168,8 @@
     "describeIt": "Describe it",
     "describePlaceholder": "Describe the symptom appearance, sensation, size...",
     "cancel": "Cancel",
-    "saveEntry": "Save Entry",
+    "save" :"Save",
+    "saveEntry": "Symptom has saved successfully",
     "saving": "Saving…",
     "errorImage": "Please upload an image",
     "errorImageType": "Please upload an image file (JPEG, PNG, WebP)",
@@ -195,7 +196,8 @@
     "emptyDesc": "Record your first SLEDAI-2K assessment to start tracking disease activity.",
     "notes": "Notes (optional)",
     "notesPlaceholder": "Add clinical notes or observations...",
-    "saveAssessment": "Save Assessment",
+    "save" :"Save",
+    "saveAssessment": "Assessment has saved successfully",
     "saving": "Saving…",
     "criteriaPositive": "{count} of {total} criteria positive",
     "activityNone": "No Activity",
@@ -246,8 +248,10 @@
     "passwordPlaceholder": "Leave blank to keep current password",
     "passwordHint": "Only fill this in if you want to change your password.",
     "save": "Save Changes",
+    "saveSuccess": "Profile updated",
     "saving": "Saving...",
-    "cancel": "Cancel"
+    "cancel": "Cancel",
+    "errorSave": "Failed to save profile"
   },
   "auth": {
     "loginTitle": "Login to Lupustic",
@@ -271,6 +275,8 @@
     "alreadyAccount": "Already have an account?",
     "logIn": "Log in",
     "errorGender": "Please select a gender.",
-    "errorRegister": "Failed to register account"
+    "errorRegister": "Failed to register account",
+    "loginSuccess": "Welcome back!",
+    "registerSuccess": "Account created successfully!"
   }
 }

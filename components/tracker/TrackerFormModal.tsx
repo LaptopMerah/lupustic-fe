@@ -3,6 +3,7 @@
 import { useState, useRef, type DragEvent, type ChangeEvent } from "react"
 import { useTranslations } from "next-intl"
 import { Upload, ImageIcon, X, Loader2 } from "lucide-react"
+import { toast } from "sonner"
 import {
   Dialog,
   DialogContent,
@@ -13,7 +14,6 @@ import {
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
-import { Alert, AlertDescription } from "@/components/ui/alert"
 import type { CreateTrackerPayload } from "@/types"
 
 interface TrackerFormModalProps {
@@ -32,7 +32,6 @@ export function TrackerFormModal({ open, onClose, onSubmit }: TrackerFormModalPr
   const [name, setName] = useState("")
   const [desc, setDesc] = useState("")
   const [isSubmitting, setIsSubmitting] = useState(false)
-  const [error, setError] = useState<string | null>(null)
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({})
   const [isDragging, setIsDragging] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
@@ -42,7 +41,6 @@ export function TrackerFormModal({ open, onClose, onSubmit }: TrackerFormModalPr
     setImagePreview(null)
     setName("")
     setDesc("")
-    setError(null)
     setFieldErrors({})
     setIsSubmitting(false)
   }
@@ -101,13 +99,13 @@ export function TrackerFormModal({ open, onClose, onSubmit }: TrackerFormModalPr
   async function handleSubmit() {
     if (!validate()) return
     setIsSubmitting(true)
-    setError(null)
 
     try {
       await onSubmit({ image: imageFile!, name: name.trim(), desc: desc.trim() })
+      toast.success(t("saveEntry"))
       handleClose()
     } catch (err) {
-      setError(err instanceof Error ? err.message : t("errorSave"))
+      toast.error(err instanceof Error ? err.message : t("errorSave"))
     } finally {
       setIsSubmitting(false)
     }
@@ -121,12 +119,6 @@ export function TrackerFormModal({ open, onClose, onSubmit }: TrackerFormModalPr
         </DialogHeader>
 
         <div className="space-y-5 py-2">
-          {error && (
-            <Alert variant="destructive">
-              <AlertDescription>{error}</AlertDescription>
-            </Alert>
-          )}
-
           <div className="space-y-2">
             <label className="flex items-center gap-2 text-sm font-medium text-foreground">
               <ImageIcon className="h-4 w-4" />
@@ -214,7 +206,7 @@ export function TrackerFormModal({ open, onClose, onSubmit }: TrackerFormModalPr
           </Button>
           <Button onClick={handleSubmit} disabled={isSubmitting} className="gap-2">
             {isSubmitting && <Loader2 className="h-4 w-4 animate-spin" />}
-            {isSubmitting ? t("saving") : t("saveEntry")}
+            {isSubmitting ? t("saving") : t("save")}
           </Button>
         </DialogFooter>
       </DialogContent>

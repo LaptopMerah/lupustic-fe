@@ -104,7 +104,7 @@ export function SledaiCalculator({ onSubmit, isSaving }: Props) {
             disabled={isSaving}
             className="gap-2"
           >
-            {isSaving ? t("saving") : t("saveAssessment")}
+            {isSaving ? t("saving") : t("save")}
           </Button>
         </div>
       </div>

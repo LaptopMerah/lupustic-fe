@@ -3,10 +3,10 @@
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { useTranslations } from "next-intl"
+import { toast } from "sonner"
 import { ArrowLeft } from "lucide-react"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
-import { Alert, AlertDescription } from "@/components/ui/alert"
 import { SledaiCalculator } from "@/components/sledai/SledaiCalculator"
 import { createSledaiRecord } from "@/lib/api/sledai"
 import type { SledaiAnswers } from "@/types"
@@ -15,16 +15,15 @@ export default function ActivityTrackerCreatePage() {
   const t = useTranslations("activityTracker")
   const router = useRouter()
   const [isSaving, setIsSaving] = useState(false)
-  const [error, setError] = useState<string | null>(null)
 
   async function handleSubmit(answers: SledaiAnswers, score: number, notes: string) {
     setIsSaving(true)
-    setError(null)
     try {
       await createSledaiRecord({ data: { answers, score, notes: notes || undefined } })
+      toast.success(t("saveAssessment"))
       router.push("/activity-tracker")
     } catch (err) {
-      setError(t("errorSave"))
+      toast.error(t("errorSave"))
       console.error("[SledaiCreate]", err)
     } finally {
       setIsSaving(false)
@@ -46,14 +45,6 @@ export default function ActivityTrackerCreatePage() {
           </div>
         </div>
       </div>
-
-      {error && (
-        <div className="px-6 pt-6">
-          <Alert variant="destructive">
-            <AlertDescription>{error}</AlertDescription>
-          </Alert>
-        </div>
-      )}
 
       <SledaiCalculator onSubmit={handleSubmit} isSaving={isSaving} />
     </>

@@ -11,7 +11,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
-import { Alert, AlertDescription } from "@/components/ui/alert";
+import { toast } from "sonner";
 import { updateProfile } from "@/lib/api/auth";
 import { useAuth } from "@/hooks/useAuth";
 import type { UserUpdatePayload } from "@/types";
@@ -31,7 +31,6 @@ export function UpdateProfileDialog({ open, onClose, onSuccess }: Props) {
   const [dob, setDob] = useState("");
   const [phone, setPhone] = useState("");
   const [isSaving, setIsSaving] = useState(false);
-  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     if (open && user) {
@@ -39,14 +38,12 @@ export function UpdateProfileDialog({ open, onClose, onSuccess }: Props) {
       setGender(user.gender ?? "");
       setDob(user.dob ?? "");
       setPhone(user.phone_number ?? "");
-      setError(null);
     }
   }, [open, user]);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setIsSaving(true);
-    setError(null);
 
     const payload: UserUpdatePayload = {};
     if (name.trim() !== (user?.name ?? "")) payload.name = name.trim();
@@ -62,10 +59,11 @@ export function UpdateProfileDialog({ open, onClose, onSuccess }: Props) {
 
     try {
       await updateProfile(payload);
+      toast.success(t("saveSuccess"));
       onSuccess();
       onClose();
     } catch (err) {
-      setError(err instanceof Error ? err.message : t("errorSave"));
+      toast.error(err instanceof Error ? err.message : t("errorSave"));
     } finally {
       setIsSaving(false);
     }
@@ -79,12 +77,6 @@ export function UpdateProfileDialog({ open, onClose, onSuccess }: Props) {
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="flex flex-col gap-4 pt-2">
-          {error && (
-            <Alert variant="destructive">
-              <AlertDescription>{error}</AlertDescription>
-            </Alert>
-          )}
-
           <div className="flex flex-col gap-1.5">
             <Label htmlFor="up-name">{t("name")}</Label>
             <Input
