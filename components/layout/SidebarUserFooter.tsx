@@ -1,7 +1,9 @@
 "use client";
 
-import { LogOut, MoreHorizontal, UserPen, User } from "lucide-react";
+import { LogOut, MoreHorizontal, UserPen, User, Globe, Check } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { useLocale } from "next-intl";
+import { useTransition } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import {
@@ -9,6 +11,9 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
+  DropdownMenuSub,
+  DropdownMenuSubContent,
+  DropdownMenuSubTrigger,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { cn } from "@/lib/utils";
@@ -23,10 +28,26 @@ const ROLE_STYLES: Record<RoleEnum, string> = {
   user:        "",
 };
 
+const LOCALES = [
+  { code: "en", label: "English", short: "EN" },
+  { code: "id", label: "Indonesia", short: "ID" },
+] as const;
+
 export function SidebarUserFooter() {
   const { user, logout, isLoading } = useAuth();
   const { collapsed } = useSidebarCollapsed();
   const router = useRouter();
+  const locale = useLocale();
+  const [isPending, startTransition] = useTransition();
+
+  function switchLocale(newLocale: string) {
+    document.cookie = `locale=${newLocale}; path=/; max-age=31536000; SameSite=Lax`;
+    startTransition(() => {
+      router.refresh();
+    });
+  }
+
+  const currentLocale = LOCALES.find((l) => l.code === locale) ?? LOCALES[0];
 
   if (isLoading || !user) return null;
 
@@ -73,6 +94,29 @@ export function SidebarUserFooter() {
               <UserPen className="h-3.5 w-3.5" />
               Update Profile
             </DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuSub>
+              <DropdownMenuSubTrigger className="gap-2 cursor-pointer">
+                <Globe className="h-3.5 w-3.5" />
+                Language
+                <span className="ml-auto text-[10px] font-medium text-muted-foreground">
+                  {currentLocale.short}
+                </span>
+              </DropdownMenuSubTrigger>
+              <DropdownMenuSubContent className="w-36">
+                {LOCALES.map((l) => (
+                  <DropdownMenuItem
+                    key={l.code}
+                    disabled={isPending}
+                    className="flex items-center justify-between gap-2 cursor-pointer"
+                    onSelect={() => switchLocale(l.code)}
+                  >
+                    <span className="text-sm">{l.label}</span>
+                    {locale === l.code && <Check className="h-3.5 w-3.5 text-primary" />}
+                  </DropdownMenuItem>
+                ))}
+              </DropdownMenuSubContent>
+            </DropdownMenuSub>
             <DropdownMenuSeparator />
             <DropdownMenuItem
               className="gap-2 cursor-pointer text-destructive focus:text-destructive"

@@ -86,8 +86,7 @@ export function Navbar() {
               </div>
             )
           )}
-                    <LanguageSwitcher />
-
+          <LanguageSwitcher />
         </div>
 
         <Sheet open={open} onOpenChange={setOpen}>
