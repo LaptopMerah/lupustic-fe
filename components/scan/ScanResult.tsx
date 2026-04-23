@@ -43,7 +43,7 @@ export function ScanResult({ data, previewUrl, onRetry }: ScanResultProps) {
 
         <ResultActionCard
           classification={data.classification}
-          confidence={data.confidence}
+          confidence={data.image_confidence}
           sessionId={data.session_id}
           onRetry={onRetry}
         />
