@@ -4,23 +4,24 @@ export interface ResponseWrapper<T> {
   data: T;
 }
 
-// — Symptoms —
-export interface SymptomsPayload {
-  hair_loss: boolean;
-  fever_of_unknown_origin: boolean;
-  seizures: boolean;
-  mouth_sores: boolean;
-  joint_pain: boolean;
-  butterfly_rash: boolean;
+// — Symptoms (EULAR/ACR 2019 clinical domains format) —
+export interface ClinicalDomainEntry {
+  point: number;
+  value: string | null;
 }
 
-export const DEFAULT_SYMPTOMS: SymptomsPayload = {
-  hair_loss: false,
-  fever_of_unknown_origin: false,
-  seizures: false,
-  mouth_sores: false,
-  joint_pain: false,
-  butterfly_rash: false,
+export interface ClinicalDomainsPayload {
+  constitutional: ClinicalDomainEntry;
+  mucocutaneous: ClinicalDomainEntry;
+  musculoskeletal: ClinicalDomainEntry;
+  neuropsychiatric: ClinicalDomainEntry;
+}
+
+export const DEFAULT_CLINICAL_DOMAINS: ClinicalDomainsPayload = {
+  constitutional:  { point: 0, value: null },
+  mucocutaneous:   { point: 0, value: null },
+  musculoskeletal: { point: 0, value: null },
+  neuropsychiatric: { point: 0, value: null },
 };
 
 // — Scan (classify only) —

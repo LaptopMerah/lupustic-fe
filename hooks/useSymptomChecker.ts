@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useCallback, useMemo } from "react";
-import type { SymptomsPayload } from "@/types";
+import type { ClinicalDomainsPayload, ClinicalDomainEntry } from "@/types";
 
 /** State shape for each main symptom and its sub-questions */
 export interface SymptomState {
@@ -48,16 +48,14 @@ export interface SymptomErrors {
 interface UseSymptomCheckerReturn {
   state: SymptomState;
   toggle: (key: keyof SymptomState) => void;
-  payload: SymptomsPayload;
+  payload: ClinicalDomainsPayload;
   errors: SymptomErrors;
   validate: () => boolean;
   saveToSession: () => void;
 }
 
-/**
- * Manages all symptom checker state and computes the final SymptomsPayload.
- * The sub-questions refine whether a symptom is truly lupus-related.
- */
+const NULL_DOMAIN: ClinicalDomainEntry = { point: 0, value: null };
+
 export function useSymptomChecker(): UseSymptomCheckerReturn {
   const [state, setState] = useState<SymptomState>(INITIAL_STATE);
   const [errors, setErrors] = useState<SymptomErrors>({ fever: null, jointInvolvement: null });
@@ -66,7 +64,6 @@ export function useSymptomChecker(): UseSymptomCheckerReturn {
     setState((prev) => {
       const next = { ...prev, [key]: !prev[key] };
 
-      // When unchecking a parent, also uncheck its children
       if (key === "fever" && next.fever === false) {
         next.feverUnknownCause = false;
         next.feverRecurring = false;
@@ -86,30 +83,46 @@ export function useSymptomChecker(): UseSymptomCheckerReturn {
     });
   }, []);
 
-  /**
-   * Compute the SymptomsPayload from current state.
-   * Fever is positive when: fever + unknown cause (exclusions are info-only warnings).
-   * Mouth sores / hair loss / seizures: just the main checkbox.
-   * Joint pain: joint pain + multiple joints.
-   */
-  const payload = useMemo<SymptomsPayload>(() => {
-    const feverPositive = state.fever && state.feverUnknownCause;
-    const oralUlcersPositive = state.oralUlcers;
-    const nonScarringAlopeciaPositive = state.nonScarringAlopecia;
-    const seizuresPositive = state.seizures;
-    const jointInvolvementPositive = state.jointInvolvement && state.jointInvolvementMultiple;
+  const payload = useMemo<ClinicalDomainsPayload>(() => {
+    // Constitutional: fever (2 pts) when fever is checked with unknown cause
+    let constitutional: ClinicalDomainEntry = NULL_DOMAIN;
+    if (state.fever) {
+      if (state.feverUnknownCause && state.feverRecurring) {
+        constitutional = { point: 2, value: "fever" };
+      }
+      else if (state.feverUnknownCause && state.feverFatigue) {
+        constitutional = { point: 2, value: "fever" };
+      }
+    }
 
-    return {
-      hair_loss: nonScarringAlopeciaPositive,
-      fever_of_unknown_origin: feverPositive,
-      seizures: seizuresPositive,
-      mouth_sores: oralUlcersPositive,
-      joint_pain: jointInvolvementPositive,
-      butterfly_rash: false, // Handled by scan image
-    };
+    // Mucocutaneous: oral ulcers (2 pts) or non-scarring alopecia (2 pts)
+    let mucocutaneous: ClinicalDomainEntry = NULL_DOMAIN;
+    if (state.oralUlcers && state.nonScarringAlopecia) {
+      mucocutaneous = { point: 2, value: "oralUlcers & nonScarringAlopecia" };
+    } else if (state.oralUlcers) {
+      mucocutaneous = { point: 2, value: "oralUlcers" };
+    } else if (state.nonScarringAlopecia) {
+      mucocutaneous = { point: 2, value: "nonScarringAlopecia" };
+    }
+
+    // Musculoskeletal: jointInvolvement ≥2 joints (6 pts)
+    let musculoskeletal: ClinicalDomainEntry = NULL_DOMAIN;
+    if (state.jointInvolvement) {
+      if (state.jointInvolvementMultiple && state.jointInvolvementSwollen) {
+        musculoskeletal = { point: 6, value: "jointInvolvement" };
+      }
+      else if (state.jointInvolvementMultiple && state.jointInvolvementStiffMorning) {
+        musculoskeletal = { point: 6, value: "jointInvolvement" };
+      }
+    }
+    
+    // Neuropsychiatric: seizure (5 pts)
+    const neuropsychiatric: ClinicalDomainEntry =
+      state.seizures ? { point: 5, value: "seizures" } : NULL_DOMAIN;
+
+    return { constitutional, mucocutaneous, musculoskeletal, neuropsychiatric };
   }, [state]);
 
-  /** Validate that checked parents have at least 1 sub-option selected */
   const validate = useCallback((): boolean => {
     const newErrors: SymptomErrors = { fever: null, jointInvolvement: null };
     let valid = true;

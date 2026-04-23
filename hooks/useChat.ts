@@ -8,7 +8,7 @@ import { useScanContext } from "@/lib/ScanContext";
 import type {
   ChatMessage,
   AsyncState,
-  SymptomsPayload,
+  ClinicalDomainsPayload,
   FirstChatResponse,
 } from "@/types";
 
@@ -43,31 +43,30 @@ export function useChat(initialUuid: string): UseChatReturn {
   } | null>(null);
   const [sessionId, setSessionId] = useState(initialUuid);
   const hasInitialized = useRef(false);
-  const pendingSymptoms = useRef<SymptomsPayload | null>(null);
+  const pendingSymptoms = useRef<ClinicalDomainsPayload | null>(null);
 
   /**
    * Submit symptoms — calls /first-chat with image + symptoms.
    * Internal only — triggered automatically from sessionStorage.
    */
   const submitSymptoms = useCallback(
-    async (symptoms: SymptomsPayload) => {
+    async (domains: ClinicalDomainsPayload) => {
       if (!imageFile) return;
 
       setSendState({ status: "loading" });
       setIsTyping(true);
 
-      const SYMPTOM_LABELS: Record<keyof SymptomsPayload, string> = {
-        hair_loss: "Hair loss",
-        fever_of_unknown_origin: "Fever of unknown origin",
-        seizures: "Seizures",
-        mouth_sores: "Mouth sores",
-        joint_pain: "Joint pain",
-        butterfly_rash: "Butterfly rash",
+      const VALUE_LABELS: Record<string, string> = {
+        fever: "Fever of unknown origin",
+        oralUlcers: "Oral ulcers",
+        nonScarringAlopecia: "Hair loss",
+        jointInvolvement: "Joint pain",
+        seizure: "Seizures",
       };
 
-      const selectedLabels = (Object.keys(symptoms) as Array<keyof SymptomsPayload>)
-        .filter((key) => symptoms[key])
-        .map((key) => SYMPTOM_LABELS[key]);
+      const selectedLabels = Object.values(domains)
+        .filter((d) => d.value !== null)
+        .map((d) => VALUE_LABELS[d.value!] ?? d.value!);
 
       const userSymptomMsg: ChatMessage = {
         role: "user",
@@ -80,7 +79,7 @@ export function useChat(initialUuid: string): UseChatReturn {
       setMessages((prev) => [...prev, userSymptomMsg]);
 
       try {
-        const data: FirstChatResponse = await analyzeImage(imageFile, symptoms);
+        const data: FirstChatResponse = await analyzeImage(imageFile, domains);
 
 
         // Store result
@@ -147,7 +146,7 @@ export function useChat(initialUuid: string): UseChatReturn {
       const storedSymptoms = sessionStorage.getItem("lupustic_symptoms");
       if (storedSymptoms) {
         try {
-          const symptoms = JSON.parse(storedSymptoms) as SymptomsPayload;
+          const symptoms = JSON.parse(storedSymptoms) as ClinicalDomainsPayload;
           sessionStorage.removeItem("lupustic_symptoms");
           pendingSymptoms.current = symptoms;
         } catch {
