@@ -15,7 +15,7 @@ interface ScanResultProps {
 export function ScanResult({ data, previewUrl, onRetry }: ScanResultProps) {
   const t = useTranslations("scanResult")
   const isLupus = data.classification === "Lupus"
-  const confidencePercent = Math.round(data.confidence * 100)
+  const confidencePercent = Math.round(data.image_confidence * 100)
   const resultText = isLupus ? t("lupusDetected") : t("noLupusDetected")
 
   return (
