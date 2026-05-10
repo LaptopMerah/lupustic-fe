@@ -30,7 +30,7 @@
     "title": "Deteksi Lupus Dini,",
     "titleHighlight": "Didukung AI",
     "subtitle": "Unggah foto kulit Anda. Model computer vision kami menganalisis indikator Lupus potensial dalam hitungan detik.",
-    "accuracyBadge": "Tingkat Akurasi 97%",
+    "accuracyBadge": "Tingkat Akurasi 90%",
     "startScanning": "Mulai Pemindaian",
     "disclaimer": "Hanya untuk tujuan informasi. Bukan diagnosis medis."
   },
@@ -103,7 +103,13 @@
     "free3": "Penilaian kepercayaan standar",
     "premium1": "Pemindaian kulit computer vision tanpa batas",
     "premium2": "Pelacakan & pemantauan kesehatan berkelanjutan",
-    "premium3": "Pengingat harian yang dipersonalisasi"
+    "premium3": "Pengingat harian yang dipersonalisasi",
+    "instTitle": "Paket Institusi",
+    "instDesc": "Solusi untuk rumah sakit & pusat kesehatan",
+    "inst1": "Semua fitur di Paket Premium",
+    "inst2": "Dukungan teknis prioritas 24/7",
+    "inst3": "Laporan kesehatan pasien komprehensif",
+    "inst4": "Akses untuk 10+ tenaga medis"
   },
   "scan": {
     "title": "Analisis Kulit",

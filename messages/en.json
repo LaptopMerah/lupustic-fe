@@ -30,7 +30,7 @@
     "title": "Early Lupus Detection,",
     "titleHighlight": "Powered by AI",
     "subtitle": "Upload a photo of your skin. Our computer vision model analyzes potential Lupus indicators in seconds.",
-    "accuracyBadge": "97% Accuracy Rate",
+    "accuracyBadge": "90% Accuracy Rate",
     "startScanning": "Start Scanning",
     "disclaimer": "For informational purposes only. Not a medical diagnosis."
   },
@@ -103,7 +103,13 @@
     "free3": "Standard confidence scoring",
     "premium1": "Unlimited computer vision skin scans",
     "premium2": "Continuous health tracking & monitoring",
-    "premium3": "Personalized daily reminders"
+    "premium3": "Personalized daily reminders",
+    "instTitle": "Institutional Plan",
+    "instDesc": "Solutions for hospitals & health centers",
+    "inst1": "All feature in Premium Plan",
+    "inst2": "24/7 priority technical support",
+    "inst3": "Comprehensive patient health reports",
+    "inst4": "Access for 10+ medical staff"
   },
   "scan": {
     "title": "Skin Analysis",
